@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyección Astral: Misión Disculpa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'display': ['Space Grotesk', 'sans-serif'],
+            'body': ['Inter', 'sans-serif'],
+            'hand': ['Caveat', 'cursive'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --space-bg: #07071a;
+      --pink: #f472b6;
+      --lilac: #818cf8;
+      --gold: #fbbf24;
+      --text: #f1f5f9;
+      --text-dim: #94a3b8;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--space-bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── Star Canvas ─── */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Glitch ─── */
+    .glitch {
+      position: relative;
+      animation: glitch-skew 4s infinite linear alternate-reverse;
+    }
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .glitch::before {
+      color: var(--pink);
+      animation: glitch-effect 3s infinite linear alternate-reverse;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+    .glitch::after {
+      color: var(--lilac);
+      animation: glitch-effect 2s infinite linear alternate-reverse;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+    @keyframes glitch-effect {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -1px); }
+      60% { transform: translate(-1px, 1px); }
+      80% { transform: translate(1px, -2px); }
+      100% { transform: translate(0); }
+    }
+    @keyframes glitch-skew {
+      0% { transform: skew(0deg); }
+      10% { transform: skew(0deg); }
+      20% { transform: skew(0.5deg); }
+      30% { transform: skew(0deg); }
+      40% { transform: skew(-0.5deg); }
+      50% { transform: skew(0deg); }
+    }
+
+    /* ─── Scroll indicator ─── */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      animation: float 2s ease-in-out infinite;
+    }
+    .scroll-indicator span {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--pink), transparent);
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ─── Section base ─── */
+    section {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 1.5rem;
+    }
+    section .inner {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ─── Scroll Reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ─── Timeline ─── */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--pink), var(--lilac), transparent);
+    }
+    .timeline-entry {
+      position: relative;
+      padding: 1rem 0 1rem 1.5rem;
+      border-left: 2px solid transparent;
+      transition: border-color 0.5s;
+    }
+    .timeline-entry.visible {
+      border-left-color: var(--pink);
+    }
+    .timeline-entry::before {
+      content: '';
+      position: absolute;
+      left: -2.6rem;
+      top: 1.4rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--space-bg);
+      border: 2px solid var(--pink);
+      transition: background 0.5s;
+    }
+    .timeline-entry.visible::before {
+      background: var(--pink);
+      box-shadow: 0 0 12px var(--pink);
+    }
+    .timeline-time {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.05em;
+    }
+    .timeline-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text);
+      margin-top: 0.25rem;
+    }
+    .timeline-desc {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+      line-height: 1.6;
+    }
+
+    /* ─── Flip Cards ─── */
+    .flip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .flip-card {
+      perspective: 800px;
+      height: 260px;
+      cursor: pointer;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s ease;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .flip-card-front {
+      background: rgba(129, 140, 248, 0.08);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+    }
+    .flip-card-back {
+      background: rgba(244, 114, 182, 0.1);
+      border: 1px solid rgba(244, 114, 182, 0.2);
+      transform: rotateY(180deg);
+    }
+    .flip-card-front .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .flip-card-front h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .flip-card-back p {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .flip-card-back .stars {
+      margin-top: 0.75rem;
+      font-size: 1.25rem;
+      color: var(--gold);
+    }
+    .flip-hint {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── Typewriter ─── */
+    .typewriter-container {
+      position: relative;
+    }
+    .typewriter-text {
+      font-family: 'Caveat', cursive;
+      font-size: 1.35rem;
+      line-height: 1.7;
+      color: rgba(241, 245, 249, 0.92);
+      white-space: pre-wrap;
+      min-height: 200px;
+    }
+    .typewriter-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1.2em;
+      background: var(--pink);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+    .typewriter-cursor.done {
+      display: none;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ─── Letter styling ─── */
+    .letter {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      position: relative;
+    }
+    .letter::before {
+      content: '✧';
+      position: absolute;
+      top: -0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.5rem;
+      color: var(--gold);
+    }
+    .letter-date {
+      text-align: right;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-family: 'Space Grotesk', sans-serif;
+      margin-bottom: 1.5rem;
+    }
+    .letter-salutation {
+      font-family: 'Caveat', cursive;
+      font-size: 1.5rem;
+      color: var(--pink);
+      margin-bottom: 1rem;
+    }
+
+    /* ─── Orbits ─── */
+    .orbit-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+    }
+    .orbit-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--gold), #d97706);
+      box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #000;
+      font-family: 'Space Grotesk', sans-serif;
+      z-index: 2;
+    }
+    .orbit-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      z-index: 1;
+    }
+    .orbit-ring-2 {
+      width: 260px;
+      height: 260px;
+      border-color: rgba(244, 114, 182, 0.15);
+    }
+    .orbit-body {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      z-index: 3;
+      transition: box-shadow 0.5s;
+    }
+    .orbit-body.diego {
+      top: -10px;
+      left: calc(50% - 25px);
+      background: radial-gradient(circle, var(--lilac), #5b51d0);
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.3);
+      animation: orbit-diego 6s linear infinite;
+    }
+    .orbit-body.marian {
+      top: -10px;
+      left: calc(50% - 25px);
+      background: radial-gradient(circle, var(--pink), #db2777);
+      box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
+      animation: orbit-marian 8s linear infinite;
+    }
+    @keyframes orbit-diego {
+      from { transform: rotate(0deg) translateX(110px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(110px) rotate(-360deg); }
+    }
+    @keyframes orbit-marian {
+      from { transform: rotate(180deg) translateX(130px) rotate(-180deg); }
+      to   { transform: rotate(540deg) translateX(130px) rotate(-540deg); }
+    }
+    .orbit-body.aligned {
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+    }
+
+    .orbit-btn {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.75rem 2rem;
+      border-radius: 9999px;
+      border: 1px solid var(--pink);
+      color: var(--pink);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .orbit-btn:hover {
+      background: var(--pink);
+      color: var(--space-bg);
+      box-shadow: 0 0 30px rgba(244, 114, 182, 0.3);
+    }
+
+    /* ─── Constellation ─── */
+    .constellation {
+      position: relative;
+      width: 100%;
+      height: 120px;
+      margin-top: 2rem;
+    }
+    .constellation svg {
+      width: 100%;
+      height: 100%;
+    }
+    .constellation line {
+      stroke: var(--gold);
+      stroke-width: 1.5;
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      transition: stroke-dashoffset 2s ease;
+    }
+    .constellation line.drawn {
+      stroke-dashoffset: 0;
+    }
+    .constellation circle {
+      fill: var(--gold);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .constellation circle.drawn {
+      opacity: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: rgba(148, 163, 184, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      section { padding: 3rem 1rem; }
+      .letter { padding: 1.5rem; }
+      .typewriter-text { font-size: 1.1rem; }
+      .glitch { font-size: 2rem !important; }
+      .orbit-container { width: 220px; height: 220px; }
+      .orbit-ring { width: 160px; height: 160px; }
+      .orbit-ring-2 { width: 200px; height: 200px; }
+      @keyframes orbit-diego {
+        from { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+        to   { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+      }
+      @keyframes orbit-marian {
+        from { transform: rotate(180deg) translateX(100px) rotate(-180deg); }
+        to   { transform: rotate(540deg) translateX(100px) rotate(-540deg); }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="starfield"></canvas>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 1 — HERO
+  ════════════════════════════════════════════════════════ -->
+  <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center relative">
+    <div class="inner max-w-3xl">
+      <p class="text-sm font-display tracking-[0.2em] text-pink-400/60 mb-6 reveal">✦ SEÑAL PERDIDA ✦</p>
+      <h1 class="glitch text-5xl sm:text-7xl font-display font-bold leading-tight mb-6"
+          data-text="HOUSTON, TENEMOS UN PROBLEMA">
+        HOUSTON, TENEMOS UN PROBLEMA
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-300/70 font-body mb-4 reveal">
+        Diego perdió la comunicación con Marian
+      </p>
+      <p class="text-sm text-slate-500 font-mono tracking-wider reveal">
+        <span class="text-pink-400">16/05/2026</span> — El día que no entendí tu broma
+      </p>
+    </div>
+    <div class="scroll-indicator">
+      <span class="text-xs font-display tracking-widest text-pink-400/40">DESPLIEGA</span>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 2 — BITÁCORA DE VUELO
+  ════════════════════════════════════════════════════════ -->
+  <section id="bitacora">
+    <div class="inner">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-4 reveal">
+        ✦ Bitácora de Vuelo ✦
+      </h2>
+      <p class="text-center text-slate-400 text-sm mb-12 reveal">
+        El registro completo del malentendido intergaláctico
+      </p>
+
+      <div class="timeline max-w-lg mx-auto">
+        <div class="timeline-entry reveal-left" data-delay="0">
+          <p class="timeline-time">16 MAY 2026 — 10:31 PM</p>
+          <p class="timeline-title">📡 Proyección astral malinterpretada</p>
+          <p class="timeline-desc">Marian hace una broma sobre proyección astral. Yo, confundido, activo modo defensa.</p>
+        </div>
+        <div class="timeline-entry reveal-left" data-delay="150">
+          <p class="timeline-time">16 MAY 2026 — 10:43 PM</p>
+          <p class="timeline-title">🫠 Pánico. Borrado masivo.</p>
+          <p class="timeline-desc">Elimino mensajes como si eso pudiera borrar lo dicho. Spoiler: no funciona así.</p>
+        </div>
+        <div class="timeline-entry reveal-left" data-delay="300">
+          <p class="timeline-time">16 MAY 2026 — 10:58 PM</p>
+          <p class="timeline-title">💥 La explosión</p>
+          <p class="timeline-desc">Digo cosas que no debía. La amistad entra en órbita de colisión.</p>
+        </div>
+        <div class="timeline-entry reveal-left" data-delay="450">
+          <p class="timeline-time">17 MAY 2026 — 12:12 AM</p>
+          <p class="timeline-title">🌙 "Podemos hablar?"</p>
+          <p class="timeline-desc">Marian tiende la mano. Mi orgullo dice que no, pero el corazón dice que sí.</p>
+        </div>
+        <div class="timeline-entry reveal-left" data-delay="600">
+          <p class="timeline-time">DÍAS DESPUÉS</p>
+          <p class="timeline-title">🚀 Decisión final</p>
+          <p class="timeline-desc">En vez de seguir huyendo, construyo esto. Una disculpa a la altura de la amistad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 3 — GALERÍA DE DISCULPAS PÉSIMAS
+  ════════════════════════════════════════════════════════ -->
+  <section id="galeria">
+    <div class="inner">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal">
+        ✦ Mis Peores Intentos de Disculpa ✦
+      </h2>
+      <p class="text-center text-slate-400 text-sm mb-2 reveal">
+        Haz clic en cada uno para ver la cruda realidad
+      </p>
+      <p class="text-center text-slate-500 text-xs mb-8 reveal">
+        (No sé cuál es peor, honestamente)
+      </p>
+
+      <div class="flip-grid">
+        <div class="flip-card reveal-scale">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">🍺</div>
+              <h3>"Fue culpa de la cerveza... bueno, no realmente"</h3>
+              <p class="flip-hint">👆 toc para ver el rating</p>
+            </div>
+            <div class="flip-card-back">
+              <p>Clásico. Echarle la culpa al alcohol. Tan original como patético.</p>
+              <div class="stars">⭐ ⭐ ⭐ ⭐ ⭐</div>
+              <p class="text-xs text-slate-500 mt-1">5/5 en vergüenza ajena</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card reveal-scale" data-delay="150">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">🤖</div>
+              <h3>"Rob controla mi mente, lo siento"</h3>
+              <p class="flip-hint">👆 toc para ver el rating</p>
+            </div>
+            <div class="flip-card-back">
+              <p>Si "Rob controla mi mente" fuera real, me habría programado para no decir estupideces.</p>
+              <div class="stars">⭐ ⭐ ⭐ ⭐ ⭐</div>
+              <p class="text-xs text-slate-500 mt-1">5/5 en creatividad inútil</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card reveal-scale" data-delay="300">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="icon">💀</div>
+              <h3>"Perdón... ¿por qué era?..."</h3>
+              <p class="flip-hint">👆 toc para ver el rating</p>
+            </div>
+            <div class="flip-card-back">
+              <p>Disculparse sin saber de qué. El clásico que merece un premio a la peor estrategia.</p>
+              <div class="stars">⭐ ⭐ ⭐ ⭐ ⭐</div>
+              <p class="text-xs text-slate-500 mt-1">5/5 en incapacidad emocional</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-10 reveal">
+        <p class="text-slate-400 text-sm italic">
+          "Si tan malas son mis disculpas, imagínate lo sincera que es esta página..."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 4 — CARTA ASTRAL (LOVE LETTER)
+  ════════════════════════════════════════════════════════ -->
+  <section id="carta">
+    <div class="inner">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal">
+        ✦ Carta Astral ✦
+      </h2>
+      <p class="text-center text-slate-400 text-sm mb-10 reveal">
+        Lo que debí decir desde el principio
+      </p>
+
+      <div class="letter max-w-2xl mx-auto">
+        <p class="letter-date">17 de mayo, 2026 — Desde algún lugar del espacio</p>
+        <p class="letter-salutation">Querida Marian,</p>
+        <div class="typewriter-container">
+          <div id="typewriter" class="typewriter-text"></div>
+          <span class="typewriter-cursor" id="typewriterCursor"></span>
+        </div>
+        <div id="letter-end" style="display:none;">
+          <p class="text-right mt-6 font-hand text-xl text-pink-300">— Diego</p>
+          <p class="text-xs text-slate-500 mt-2 text-center italic">
+            Posdata: No, Rob no controla mi mente. Esto salió de mí. Por primera vez.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 5 — RECONCILIACIÓN CÓSMICA
+  ════════════════════════════════════════════════════════ -->
+  <section id="reconciliacion">
+    <div class="inner text-center">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold mb-2 reveal">
+        ✦ Reconciliación Cósmica ✦
+      </h2>
+      <p class="text-slate-400 text-sm mb-12 reveal">
+        Dos almas que se encontraron en la Sirena y orbitaron juntas 4 meses
+      </p>
+
+      <div class="flex flex-col items-center reveal-scale">
+        <div class="orbit-container" id="orbitContainer">
+          <div class="orbit-ring"></div>
+          <div class="orbit-ring orbit-ring-2"></div>
+          <div class="orbit-center">❤</div>
+          <div class="orbit-body diego" id="orbitDiego">Diego</div>
+          <div class="orbit-body marian" id="orbitMarian">Marian</div>
+        </div>
+
+        <button class="orbit-btn" id="alignBtn">Alinear nuestros astros 💫</button>
+
+        <div id="reconcileMessage" style="display:none;" class="mt-8 max-w-md mx-auto">
+          <p class="text-lg font-hand text-pink-300 leading-relaxed">
+            No sé si esto sirva para alinear lo que importa, pero quería que supieras
+            que esos 4 meses no los cambiaria por nada. Gracias por existir.
+          </p>
+          <div class="constellation" id="constellationContainer">
+            <svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+              <line id="c1" x1="20" y1="50" x2="80" y2="20"/>
+              <line id="c2" x1="80" y1="20" x2="140" y2="50"/>
+              <line id="c3" x1="140" y1="50" x2="200" y2="20"/>
+              <line id="c4" x1="200" y1="20" x2="260" y2="50"/>
+              <line id="c5" x1="20" y1="50" x2="80" y2="80"/>
+              <line id="c6" x1="80" y1="80" x2="140" y2="50"/>
+              <line id="c7" x1="140" y1="50" x2="200" y2="80"/>
+              <line id="c8" x1="200" y1="80" x2="260" y2="50"/>
+              <circle cx="20" cy="50" r="4"/>
+              <circle cx="80" cy="20" r="4"/>
+              <circle cx="140" cy="50" r="4"/>
+              <circle cx="200" cy="20" r="4"/>
+              <circle cx="260" cy="50" r="4"/>
+              <circle cx="80" cy="80" r="4"/>
+              <circle cx="200" cy="80" r="4"/>
+              <text x="140" y="95" text-anchor="middle" fill="rgba(251,191,36,0.6)" font-size="10" font-family="Space Grotesk, sans-serif">P E R D Ó N</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 6 — EPÍLOGO
+  ════════════════════════════════════════════════════════ -->
+  <section id="epilogo">
+    <div class="inner text-center max-w-2xl">
+      <p class="text-sm font-display tracking-[0.2em] text-slate-500 mb-6 reveal">✦ EPÍLOGO ✦</p>
+      <h2 class="text-3xl sm:text-4xl font-display font-bold mb-8 reveal">
+        Gracias por 4 meses
+      </h2>
+
+      <div class="space-y-6 text-slate-300/80 leading-relaxed text-lg reveal" style="transition-delay:200ms">
+        <p>
+          No te había dicho, pero si duré 4 meses en la Sirena fue porque la pasaba bien
+          contigo y tus bromas. Por mucho tiempo fuiste mi soporte emocional.
+        </p>
+        <p>
+          "Que si Rob controla mi mente", "que si la proyección astral", "que si somos
+          hermanos de otra vida" — esas bromas tontas fueron lo mejor del turno.
+        </p>
+        <p class="text-slate-400 text-base">
+          Perdón por no haber estado a la altura. Perdón por desquitarme con la única
+          persona que realmente me entendía. Perdón por ser tan idiota con las bromas.
+        </p>
+        <p class="text-pink-300 font-hand text-2xl pt-4">
+          Te extraño, amiga mía.
+        </p>
+      </div>
+
+      <div class="mt-12 reveal">
+        <p class="text-xs text-slate-600 font-mono">
+          &lt;/* Hecho con culpa, arrepentimiento y cariño cósmico */&gt;
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Proyección Astral: Misión Disculpa &nbsp;·&nbsp; De Diego para Marian &nbsp;·&nbsp; 2026
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT
+  ════════════════════════════════════════════════════════ -->
+  <script>
+    // ─── 1. STARFIELD (Canvas) ───
+    (function() {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      let w, h;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const STAR_COUNT = 400;
+      for (let i = 0; i < STAR_COUNT; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 2 + 0.5,
+          alpha: Math.random(),
+          speed: 0.005 + Math.random() * 0.015,
+          hue: 220 + Math.random() * 40
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        for (const s of stars) {
+          s.alpha += (Math.random() - 0.5) * s.speed;
+          s.alpha = Math.max(0.2, Math.min(1, s.alpha));
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${s.hue}, 60%, 80%, ${s.alpha})`;
+          ctx.fill();
+        }
+        for (const s of stars) {
+          s.x += (Math.random() - 0.5) * 0.3;
+          s.y += (Math.random() - 0.5) * 0.3;
+          if (s.x < 0) s.x = w;
+          if (s.x > w) s.x = 0;
+          if (s.y < 0) s.y = h;
+          if (s.y > h) s.y = 0;
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ─── 2. INTERSECTION OBSERVER (Scroll reveals) ───
+    (function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const delay = entry.target.dataset.delay || 0;
+            setTimeout(() => entry.target.classList.add('visible'), parseInt(delay));
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
+        observer.observe(el);
+      });
+
+      // Timeline entries
+      const timelineObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const delay = entry.target.dataset.delay || 0;
+            setTimeout(() => entry.target.classList.add('visible'), parseInt(delay));
+          }
+        });
+      }, { threshold: 0.3 });
+      document.querySelectorAll('.timeline-entry').forEach(el => timelineObserver.observe(el));
+    })();
+
+    // ─── 3. FLIP CARDS ───
+    document.querySelectorAll('.flip-card').forEach(card => {
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+    });
+
+    // ─── 4. TYPEWRITER ───
+    (function() {
+      const text = [
+        "Me desesperé y me quise desquitar con la única amig@ que tengo (y tuve, cómo me duele escribir esto). No fue lo adecuado. Mal pensé las cosas.",
+        "",
+        "Y aunque sí me molestan algunas cosas tuyas —como a ti de mí— no estuvo bien decirlo de esas formas. Insultarte. Decirte mentirosa, hipócrita, cortante. Llamarme idiota, imbécil y perro no me hace mejor persona.",
+        "",
+        "Sé que lo del día de las botellas y la cerveza no es excusa, pero el estrés me está afectando más de lo que quiero admitir. Y entenderé tu decisión de alejarte de mí. Te extrañaré. Mucho, de hecho.",
+        "",
+        "Pero me disculpo de corazón por mi acto de aquella noche. Por lo cretino que soy a veces. Por esa vez que te dije en broma que era \"tu culpa que se jodiera el motor\" —broma de mal gusto— y por ser tan insoportable todo el rato.",
+        "",
+        "En serio: perdón, perdón, perdón.",
+        "",
+        "Solo te deseo éxitos a ti, mi amiga.",
+        "",
+        "Perdóname."
+      ].join('\n');
+
+      const target = document.getElementById('typewriter');
+      const cursor = document.getElementById('typewriterCursor');
+      const letterEnd = document.getElementById('letter-end');
+      let index = 0;
+      let isWriting = false;
+      let timeoutId = null;
+      let hasStarted = false;
+
+      function writeChar() {
+        if (index >= text.length) {
+          cursor.classList.add('done');
+          letterEnd.style.display = 'block';
+          isWriting = false;
+          return;
+        }
+        const ch = text[index];
+        target.textContent += ch;
+        index++;
+        const delay = (ch === '\n') ? 200 : (Math.random() * 30 + 20);
+        timeoutId = setTimeout(writeChar, delay);
+      }
+
+      const cartaObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasStarted) {
+            hasStarted = true;
+            setTimeout(writeChar, 800);
+          }
+          if (!entry.isIntersecting && isWriting) {
+            clearTimeout(timeoutId);
+            isWriting = false;
+          }
+        });
+      }, { threshold: 0.3 });
+      cartaObserver.observe(document.getElementById('carta'));
+    })();
+
+    // ─── 5. ORBIT ALIGNMENT ───
+    (function() {
+      const btn = document.getElementById('alignBtn');
+      const diego = document.getElementById('orbitDiego');
+      const marian = document.getElementById('orbitMarian');
+      const msg = document.getElementById('reconcileMessage');
+      let aligned = false;
+
+      btn.addEventListener('click', () => {
+        if (aligned) return;
+
+        // Pause animations and center both
+        diego.style.animationPlayState = 'paused';
+        marian.style.animationPlayState = 'paused';
+
+        // Get computed positions and merge them toward center
+        diego.classList.add('aligned');
+        marian.classList.add('aligned');
+
+        // Move both toward the center visually
+        const container = document.getElementById('orbitContainer');
+        const center = container.querySelector('.orbit-center');
+        const rect = center.getBoundingClientRect();
+
+        diego.style.transition = 'all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        marian.style.transition = 'all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        diego.style.transform = 'translate(-50%, -50%)';
+        diego.style.top = '50%';
+        diego.style.left = '50%';
+        diego.style.animation = 'none';
+
+        marian.style.transform = 'translate(-50%, -50%)';
+        marian.style.top = '50%';
+        marian.style.left = '50%';
+        marian.style.animation = 'none';
+
+        btn.textContent = '💫 Astros alineados 💫';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'default';
+
+        setTimeout(() => {
+          msg.style.display = 'block';
+          document.querySelectorAll('.constellation line').forEach((line, i) => {
+            setTimeout(() => line.classList.add('drawn'), i * 200);
+          });
+          document.querySelectorAll('.constellation circle').forEach((circle, i) => {
+            setTimeout(() => circle.classList.add('drawn'), 400 + i * 200);
+          });
+        }, 1600);
+
+        aligned = true;
+      });
+    })();
+
+    // ─── 6. SMOOTH PARALLAX ON HERO ───
+    window.addEventListener('scroll', () => {
+      const hero = document.getElementById('hero');
+      if (!hero) return;
+      const scrolled = window.scrollY;
+      const heroContent = hero.querySelector('.inner');
+      if (heroContent && scrolled < window.innerHeight) {
+        heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
+        heroContent.style.opacity = 1 - (scrolled / (window.innerHeight * 0.8));
+      }
+    });
+  </script>
+</body>
+</html>
