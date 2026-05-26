@@ -234,7 +234,12 @@
       gap: 4rem;
       padding: 0 4rem;
       will-change: transform;
-      transition: transform 0.05s linear;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .timeline-track:active {
+      cursor: grabbing;
     }
     .timeline-card {
       min-width: 320px;
@@ -1133,42 +1138,117 @@
       });
     })();
 
-    // ─── 6. HORIZONTAL TIMELINE SCROLL ───
+    // ─── 6. HORIZONTAL TIMELINE SCROLL + DRAG ───
     (function() {
       const track = document.getElementById('timelineTrack');
       const progressBar = document.getElementById('timelineProgressBar');
-      if (!track) return;
-
       const section = document.getElementById('bitacora');
-      let maxScroll = 0;
+      if (!track || !section) return;
+
+      let maxTranslate = 0;
+      let isDragging = false;
+      let dragStartX = 0;
+      let dragTranslate = 0;
+      let currentTranslate = 0;
+      let scrollBased = true;
+
+      function calcMaxTranslate() {
+        maxTranslate = track.scrollWidth - section.offsetWidth;
+        if (maxTranslate < 0) maxTranslate = 0;
+      }
 
       function updateTimeline() {
-        const trackWidth = track.scrollWidth;
-        const containerWidth = section.offsetWidth;
-        maxScroll = trackWidth - containerWidth / 2;
+        if (isDragging) return;
+        calcMaxTranslate();
 
-        let progress = 0;
-        const sectionRect = section.getBoundingClientRect();
+        const scrollY = lenis ? (lenis.actualScroll || lenis.targetScroll || 0) : window.scrollY;
+        const sectionAbsTop = section.offsetTop;
         const windowH = window.innerHeight;
-        const sectionProgress = 1 - (sectionRect.bottom - windowH) / (sectionRect.height + windowH);
-        const clamped = Math.max(0, Math.min(1, sectionProgress));
-        progress = clamped;
 
-        const translateX = -progress * maxScroll;
-        track.style.transform = `translateX(${Math.max(-maxScroll, Math.min(0, translateX))}px)`;
+        const scrollStart = sectionAbsTop - windowH;
+        const scrollEnd = sectionAbsTop + section.offsetHeight;
+        const scrollRange = scrollEnd - scrollStart;
+
+        let progress = scrollRange > 0 ? (scrollY - scrollStart) / scrollRange : 0;
+        progress = Math.max(0, Math.min(1, progress));
+
+        currentTranslate = -progress * maxTranslate;
+        track.style.transform = `translateX(${currentTranslate}px)`;
 
         if (progressBar) {
           progressBar.style.width = `${progress * 100}%`;
         }
       }
 
+      // ── Touch / Drag support ──
+      track.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        scrollBased = false;
+        dragStartX = e.touches[0].clientX;
+        dragTranslate = currentTranslate;
+        track.style.transition = 'none';
+      }, { passive: true });
+
+      track.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const dx = e.touches[0].clientX - dragStartX;
+        let newTranslate = dragTranslate + dx;
+        newTranslate = Math.max(-maxTranslate, Math.min(0, newTranslate));
+        track.style.transform = `translateX(${newTranslate}px)`;
+        currentTranslate = newTranslate;
+
+        const dragProgress = maxTranslate > 0 ? Math.abs(newTranslate) / maxTranslate : 0;
+        if (progressBar) {
+          progressBar.style.width = `${dragProgress * 100}%`;
+        }
+      }, { passive: true });
+
+      track.addEventListener('touchend', () => {
+        isDragging = false;
+        track.style.transition = '';
+        // Keep scroll-based sync paused for a moment to avoid jump
+        setTimeout(() => { scrollBased = true; }, 300);
+      }, { passive: true });
+
+      // Mouse drag for desktop too
+      track.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        scrollBased = false;
+        dragStartX = e.clientX;
+        dragTranslate = currentTranslate;
+        track.style.transition = 'none';
+        track.style.cursor = 'grabbing';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStartX;
+        let newTranslate = dragTranslate + dx;
+        newTranslate = Math.max(-maxTranslate, Math.min(0, newTranslate));
+        track.style.transform = `translateX(${newTranslate}px)`;
+        currentTranslate = newTranslate;
+
+        const dragProgress = maxTranslate > 0 ? Math.abs(newTranslate) / maxTranslate : 0;
+        if (progressBar) {
+          progressBar.style.width = `${dragProgress * 100}%`;
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        track.style.transition = '';
+        track.style.cursor = '';
+        setTimeout(() => { scrollBased = true; }, 300);
+      });
+
       if (lenis) {
-        lenis.on('scroll', updateTimeline);
+        lenis.on('scroll', () => { if (scrollBased) updateTimeline(); });
       } else {
-        window.addEventListener('scroll', updateTimeline);
+        window.addEventListener('scroll', () => { if (scrollBased) updateTimeline(); });
       }
-      window.addEventListener('resize', updateTimeline);
-      setTimeout(updateTimeline, 100);
+      window.addEventListener('resize', () => { calcMaxTranslate(); updateTimeline(); });
+      setTimeout(() => { calcMaxTranslate(); updateTimeline(); }, 100);
     })();
 
     // ─── 7. INTERSECTION OBSERVER (Scroll reveals) ───
