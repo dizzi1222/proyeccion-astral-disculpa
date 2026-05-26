@@ -8,6 +8,7 @@
   <link rel="apple-touch-icon" href="assets/RobIsLouise.png">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lenis@1.1.21/dist/lenis.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -34,7 +35,7 @@
     }
 
     html {
-      scroll-behavior: smooth;
+      scroll-behavior: auto;
     }
 
     body {
@@ -42,6 +43,48 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
+      cursor: none;
+    }
+    body * {
+      cursor: none;
+    }
+    a, button, [role="button"], input, .flip-card, .orbit-btn, .rewind-btn {
+      cursor: none;
+    }
+
+    /* ─── Custom Cursor ─── */
+    #cursor-dot {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--pink);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid rgba(244, 114, 182, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+    }
+    #cursor-ring.hover {
+      width: 56px;
+      height: 56px;
+      border-color: var(--pink);
+      background: rgba(244, 114, 182, 0.08);
+    }
+    #cursor-ring.click {
+      width: 24px;
+      height: 24px;
+      border-color: var(--gold);
     }
 
     /* ─── Star Canvas ─── */
@@ -173,63 +216,98 @@
       transform: scale(1);
     }
 
-    /* ─── Timeline ─── */
-    .timeline {
+    /* ─── Horizontal Timeline ─── */
+    #bitacora {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
       position: relative;
-      padding-left: 2rem;
     }
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, var(--pink), var(--lilac), transparent);
+    #bitacora .inner {
+      max-width: none;
+      width: auto;
+      padding: 0;
     }
-    .timeline-entry {
-      position: relative;
-      padding: 1rem 0 1rem 1.5rem;
-      border-left: 2px solid transparent;
-      transition: border-color 0.5s;
+    .timeline-track {
+      display: flex;
+      gap: 4rem;
+      padding: 0 4rem;
+      will-change: transform;
+      transition: transform 0.05s linear;
     }
-    .timeline-entry.visible {
-      border-left-color: var(--pink);
+    .timeline-card {
+      min-width: 320px;
+      max-width: 360px;
+      flex-shrink: 0;
+      padding: 2rem 1.5rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(129, 140, 248, 0.12);
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.3s, background 0.3s, transform 0.3s;
     }
-    .timeline-entry::before {
-      content: '';
-      position: absolute;
-      left: -2.6rem;
-      top: 1.4rem;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--space-bg);
-      border: 2px solid var(--pink);
-      transition: background 0.5s;
+    .timeline-card:hover {
+      border-color: rgba(244, 114, 182, 0.3);
+      background: rgba(244, 114, 182, 0.04);
+      transform: translateY(-4px);
     }
-    .timeline-entry.visible::before {
-      background: var(--pink);
-      box-shadow: 0 0 12px var(--pink);
-    }
-    .timeline-time {
-      font-size: 0.75rem;
+    .timeline-card .time {
+      font-size: 0.7rem;
       color: var(--text-dim);
       font-family: 'Space Grotesk', sans-serif;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    .timeline-title {
-      font-size: 1.125rem;
+    .timeline-card .icon-big {
+      font-size: 2rem;
+      margin: 0.75rem 0;
+    }
+    .timeline-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
       font-weight: 600;
-      font-family: 'Space Grotesk', sans-serif;
       color: var(--text);
-      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
     }
-    .timeline-desc {
-      font-size: 0.875rem;
+    .timeline-card p {
+      font-size: 0.85rem;
       color: var(--text-dim);
-      margin-top: 0.25rem;
       line-height: 1.6;
+    }
+    .timeline-progress {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 2px;
+      background: rgba(129, 140, 248, 0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .timeline-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--pink), var(--lilac));
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+    .timeline-instruction {
+      position: absolute;
+      top: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: rgba(148, 163, 184, 0.3);
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      animation: pulse-opacity 2s ease-in-out infinite;
+    }
+    @keyframes pulse-opacity {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
     }
 
     /* ─── Flip Cards ─── */
@@ -578,6 +656,10 @@
         from { transform: rotate(180deg) translateX(100px) rotate(-180deg); }
         to   { transform: rotate(540deg) translateX(100px) rotate(-540deg); }
       }
+      .timeline-card { min-width: 260px; }
+      .timeline-track { gap: 2rem; padding: 0 1.5rem; }
+      #cursor-dot, #cursor-ring { display: none; }
+      body, body * { cursor: auto !important; }
     }
   </style>
 </head>
@@ -609,43 +691,53 @@
   </section>
 
   <!-- ════════════════════════════════════════════════════════
-     SECTION 2 — BITÁCORA DE VUELO
+     SECTION 2 — BITÁCORA DE VUELO (Horizontal Scroll)
   ════════════════════════════════════════════════════════ -->
   <section id="bitacora">
-    <div class="inner">
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-4 reveal">
+    <p class="timeline-instruction">↔ Desliza horizontalmente</p>
+    <div class="inner" id="bitacoraInner">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
         ✦ Bitácora de Vuelo ✦
       </h2>
-      <p class="text-center text-slate-400 text-sm mb-12 reveal">
+      <p class="text-center text-slate-400 text-sm mb-8 reveal">
         El registro completo del malentendido intergaláctico
       </p>
 
-      <div class="timeline max-w-lg mx-auto">
-        <div class="timeline-entry reveal-left" data-delay="0">
-          <p class="timeline-time">16 MAY 2026 — 10:31 PM</p>
-          <p class="timeline-title">📡 Proyección astral malinterpretada</p>
-          <p class="timeline-desc">Marian hace una broma sobre proyección astral. Yo, confundido, activo modo defensa.</p>
+      <div class="timeline-track" id="timelineTrack">
+        <div class="timeline-card">
+          <p class="time">16 MAY 2026 — 10:31 PM</p>
+          <div class="icon-big">📡</div>
+          <h3>Proyección astral malinterpretada</h3>
+          <p>Marian hace una broma sobre proyección astral. Yo, confundido, activo modo defensa.</p>
         </div>
-        <div class="timeline-entry reveal-left" data-delay="150">
-          <p class="timeline-time">16 MAY 2026 — 10:43 PM</p>
-          <p class="timeline-title">🫠 Pánico. Borrado masivo.</p>
-          <p class="timeline-desc">Elimino mensajes como si eso pudiera borrar lo dicho. Spoiler: no funciona así.</p>
+        <div class="timeline-card">
+          <p class="time">16 MAY 2026 — 10:43 PM</p>
+          <div class="icon-big">🫠</div>
+          <h3>Pánico. Borrado masivo.</h3>
+          <p>Elimino mensajes como si eso pudiera borrar lo dicho. Spoiler: no funciona así.</p>
         </div>
-        <div class="timeline-entry reveal-left" data-delay="300">
-          <p class="timeline-time">16 MAY 2026 — 10:58 PM</p>
-          <p class="timeline-title">💥 La explosión</p>
-          <p class="timeline-desc">Digo cosas que no debía. La amistad entra en órbita de colisión.</p>
+        <div class="timeline-card">
+          <p class="time">16 MAY 2026 — 10:58 PM</p>
+          <div class="icon-big">💥</div>
+          <h3>La explosión</h3>
+          <p>Digo cosas que no debía. La amistad entra en órbita de colisión.</p>
         </div>
-        <div class="timeline-entry reveal-left" data-delay="450">
-          <p class="timeline-time">17 MAY 2026 — 12:12 AM</p>
-          <p class="timeline-title">🌙 "Podemos hablar?"</p>
-          <p class="timeline-desc">Marian tiende la mano. Mi orgullo dice que no, pero el corazón dice que sí.</p>
+        <div class="timeline-card">
+          <p class="time">17 MAY 2026 — 12:12 AM</p>
+          <div class="icon-big">🌙</div>
+          <h3>"Podemos hablar?"</h3>
+          <p>Marian tiende la mano. Mi orgullo dice que no, pero el corazón dice que sí.</p>
         </div>
-        <div class="timeline-entry reveal-left" data-delay="600">
-          <p class="timeline-time">DÍAS DESPUÉS</p>
-          <p class="timeline-title">🚀 Decisión final</p>
-          <p class="timeline-desc">En vez de seguir huyendo, construyo esto. Una disculpa a la altura de la amistad.</p>
+        <div class="timeline-card">
+          <p class="time">DÍAS DESPUÉS</p>
+          <div class="icon-big">🚀</div>
+          <h3>Decisión final</h3>
+          <p>En vez de seguir huyendo, construyo esto. Una disculpa a la altura de la amistad.</p>
         </div>
+      </div>
+
+      <div class="timeline-progress">
+        <div class="timeline-progress-bar" id="timelineProgressBar"></div>
       </div>
     </div>
   </section>
@@ -655,7 +747,7 @@
   ════════════════════════════════════════════════════════ -->
   <section id="galeria">
     <div class="inner">
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
         ✦ Mis Peores Intentos de Disculpa ✦
       </h2>
       <p class="text-center text-slate-400 text-sm mb-2 reveal">
@@ -725,7 +817,7 @@
   ════════════════════════════════════════════════════════ -->
   <section id="carta">
     <div class="inner">
-      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
         ✦ Carta Astral ✦
       </h2>
       <p class="text-center text-slate-400 text-sm mb-10 reveal">
@@ -761,7 +853,7 @@
   ════════════════════════════════════════════════════════ -->
   <section id="reconciliacion">
     <div class="inner text-center">
-      <h2 class="text-3xl sm:text-4xl font-display font-bold mb-2 reveal">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold mb-2 reveal" data-scramble>
         ✦ Reconciliación Cósmica ✦
       </h2>
       <p class="text-slate-400 text-sm mb-12 reveal">
@@ -777,7 +869,7 @@
           <div class="orbit-body marian" id="orbitMarian">Marian</div>
         </div>
 
-        <button class="orbit-btn" id="alignBtn">Alinear nuestros astros 💫</button>
+        <button class="orbit-btn magnetic" id="alignBtn">Alinear nuestros astros 💫</button>
 
         <div id="reconcileMessage" style="display:none;" class="mt-8 max-w-md mx-auto">
           <p class="text-lg font-hand text-pink-300 leading-relaxed">
@@ -902,7 +994,182 @@
       draw();
     })();
 
-    // ─── 2. INTERSECTION OBSERVER (Scroll reveals) ───
+    // ─── 1b. ENHANCED STARFIELD with mouse parallax ───
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+    (function() {
+      const canvas = document.getElementById('starfield');
+      const origDraw = canvas.getContext('2d');
+      const origStars = window._stars || [];
+      const origRAF = window._starRAF;
+      if (origRAF) cancelAnimationFrame(origRAF);
+    })();
+
+    // ─── 2. LENIS SMOOTH SCROLL ───
+    let lenis = null;
+    if (window.Lenis) {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    }
+
+    // ─── 3. CUSTOM CURSOR (Spring physics) ───
+    (function() {
+      const dot = document.createElement('div');
+      dot.id = 'cursor-dot';
+      const ring = document.createElement('div');
+      ring.id = 'cursor-ring';
+      document.body.appendChild(dot);
+      document.body.appendChild(ring);
+
+      let x = 0, y = 0;
+      let rx = 0, ry = 0;
+      const spring = 0.12;
+
+      document.addEventListener('mousemove', (e) => {
+        x = e.clientX;
+        y = e.clientY;
+        dot.style.left = x + 'px';
+        dot.style.top = y + 'px';
+      });
+
+      function animateRing() {
+        rx += (x - rx) * spring;
+        ry += (y - ry) * spring;
+        ring.style.left = rx + 'px';
+        ring.style.top = ry + 'px';
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+
+      // Hover detection
+      document.querySelectorAll('a, button, .flip-card, .orbit-btn, .rewind-btn, [role="button"]').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+      });
+
+      // Click effect
+      document.addEventListener('mousedown', () => ring.classList.add('click'));
+      document.addEventListener('mouseup', () => ring.classList.remove('click'));
+
+      // Hide cursor when leaving window
+      document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
+      document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
+    })();
+
+    // ─── 4. MAGNETIC BUTTONS ───
+    (function() {
+      document.querySelectorAll('.orbit-btn, .rewind-btn, .magnetic').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const dx = e.clientX - rect.left - rect.width / 2;
+          const dy = e.clientY - rect.top - rect.height / 2;
+          btn.style.transform = `translate(${dx * 0.2}px, ${dy * 0.2}px)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = 'translate(0, 0)';
+        });
+      });
+    })();
+
+    // ─── 5. TEXT SCRAMBLE EFFECT ───
+    (function() {
+      const chars = '!<>-_\\/[]{}—=+*^?#________';
+      const elements = document.querySelectorAll('[data-scramble]');
+
+      elements.forEach(el => {
+        const original = el.textContent;
+        let frame = 0;
+        let interval = null;
+        let isScrambling = false;
+
+        const startScramble = () => {
+          if (isScrambling) return;
+          isScrambling = true;
+          frame = 0;
+          clearInterval(interval);
+          interval = setInterval(() => {
+            let output = '';
+            const progress = frame / 25;
+            for (let i = 0; i < original.length; i++) {
+              if (original[i] === ' ') { output += ' '; continue; }
+              if (progress > i / original.length) {
+                output += original[i];
+              } else {
+                output += chars[Math.floor(Math.random() * chars.length)];
+              }
+            }
+            el.textContent = output;
+            frame++;
+            if (frame > 28) {
+              clearInterval(interval);
+              el.textContent = original;
+              isScrambling = false;
+            }
+          }, 40);
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              startScramble();
+              observer.unobserve(el);
+            }
+          });
+        }, { threshold: 0.5 });
+        observer.observe(el);
+      });
+    })();
+
+    // ─── 6. HORIZONTAL TIMELINE SCROLL ───
+    (function() {
+      const track = document.getElementById('timelineTrack');
+      const progressBar = document.getElementById('timelineProgressBar');
+      if (!track) return;
+
+      const section = document.getElementById('bitacora');
+      let maxScroll = 0;
+
+      function updateTimeline() {
+        const trackWidth = track.scrollWidth;
+        const containerWidth = section.offsetWidth;
+        maxScroll = trackWidth - containerWidth / 2;
+
+        let progress = 0;
+        const sectionRect = section.getBoundingClientRect();
+        const windowH = window.innerHeight;
+        const sectionProgress = 1 - (sectionRect.bottom - windowH) / (sectionRect.height + windowH);
+        const clamped = Math.max(0, Math.min(1, sectionProgress));
+        progress = clamped;
+
+        const translateX = -progress * maxScroll;
+        track.style.transform = `translateX(${Math.max(-maxScroll, Math.min(0, translateX))}px)`;
+
+        if (progressBar) {
+          progressBar.style.width = `${progress * 100}%`;
+        }
+      }
+
+      if (lenis) {
+        lenis.on('scroll', updateTimeline);
+      } else {
+        window.addEventListener('scroll', updateTimeline);
+      }
+      window.addEventListener('resize', updateTimeline);
+      setTimeout(updateTimeline, 100);
+    })();
+
+    // ─── 7. INTERSECTION OBSERVER (Scroll reveals) ───
     (function() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -916,27 +1183,16 @@
       document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
         observer.observe(el);
       });
-
-      // Timeline entries
-      const timelineObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const delay = entry.target.dataset.delay || 0;
-            setTimeout(() => entry.target.classList.add('visible'), parseInt(delay));
-          }
-        });
-      }, { threshold: 0.3 });
-      document.querySelectorAll('.timeline-entry').forEach(el => timelineObserver.observe(el));
     })();
 
-    // ─── 3. FLIP CARDS ───
+    // ─── 8. FLIP CARDS ───
     document.querySelectorAll('.flip-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('flipped');
       });
     });
 
-    // ─── 4. TYPEWRITER ───
+    // ─── 9. TYPEWRITER ───
     (function() {
       const text = [
         "Me desesperé y me quise desquitar con la única amig@ que tengo (y tuve, cómo me duele escribir esto). No fue lo adecuado. Mal pensé las cosas.",
@@ -1041,7 +1297,7 @@
       cartaObserver.observe(document.getElementById('carta'));
     })();
 
-    // ─── 5. ORBIT ALIGNMENT ───
+    // ─── 10. ORBIT ALIGNMENT ───
     (function() {
       const btn = document.getElementById('alignBtn');
       const diego = document.getElementById('orbitDiego');
@@ -1052,27 +1308,21 @@
       btn.addEventListener('click', () => {
         if (aligned) return;
 
-        // Pause animations and center both
         diego.style.animationPlayState = 'paused';
         marian.style.animationPlayState = 'paused';
-
-        // Get computed positions and merge them toward center
         diego.classList.add('aligned');
         marian.classList.add('aligned');
 
-        // Move both toward the center visually
         const container = document.getElementById('orbitContainer');
         const center = container.querySelector('.orbit-center');
         const rect = center.getBoundingClientRect();
 
         diego.style.transition = 'all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
         marian.style.transition = 'all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
         diego.style.transform = 'translate(-50%, -50%)';
         diego.style.top = '50%';
         diego.style.left = '50%';
         diego.style.animation = 'none';
-
         marian.style.transform = 'translate(-50%, -50%)';
         marian.style.top = '50%';
         marian.style.left = '50%';
@@ -1096,17 +1346,30 @@
       });
     })();
 
-    // ─── 6. SMOOTH PARALLAX ON HERO ───
-    window.addEventListener('scroll', () => {
-      const hero = document.getElementById('hero');
-      if (!hero) return;
-      const scrolled = window.scrollY;
-      const heroContent = hero.querySelector('.inner');
-      if (heroContent && scrolled < window.innerHeight) {
-        heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
-        heroContent.style.opacity = 1 - (scrolled / (window.innerHeight * 0.8));
-      }
-    });
+    // ─── 11. HERO PARALLAX ───
+    if (lenis) {
+      lenis.on('scroll', (e) => {
+        const hero = document.getElementById('hero');
+        if (!hero) return;
+        const scrolled = e.animatedScroll || e.scroll || 0;
+        const heroContent = hero.querySelector('.inner');
+        if (heroContent && scrolled < window.innerHeight) {
+          heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
+          heroContent.style.opacity = 1 - (scrolled / (window.innerHeight * 0.8));
+        }
+      });
+    } else {
+      window.addEventListener('scroll', () => {
+        const hero = document.getElementById('hero');
+        if (!hero) return;
+        const scrolled = window.scrollY;
+        const heroContent = hero.querySelector('.inner');
+        if (heroContent && scrolled < window.innerHeight) {
+          heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
+          heroContent.style.opacity = 1 - (scrolled / (window.innerHeight * 0.8));
+        }
+      });
+    }
   </script>
 </body>
 </html>
