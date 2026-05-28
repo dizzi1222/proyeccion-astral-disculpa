@@ -266,8 +266,25 @@
       margin-bottom: 0.25rem;
     }
     .timeline-card .icon-big {
-      font-size: 2rem;
       margin: 0.75rem 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 48px;
+    }
+    .tl-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--pink);
+      opacity: 0.7;
+    }
+    .tl-sticker {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(244, 114, 182, 0.25);
+      flex-shrink: 0;
     }
     .timeline-card h3 {
       font-family: 'Space Grotesk', sans-serif;
@@ -482,6 +499,39 @@
       .mural-grid { grid-template-columns: repeat(2, 1fr); }
       .mural-card.featured { grid-column: 1 / -1; }
     }
+
+    /* ─── Audio Toggle ─── */
+    .audio-toggle {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 999;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(244, 114, 182, 0.2);
+      background: rgba(7, 7, 26, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      color: var(--pink);
+    }
+    .audio-toggle:hover {
+      border-color: rgba(244, 114, 182, 0.5);
+      box-shadow: 0 0 16px rgba(244, 114, 182, 0.15);
+    }
+    .audio-icon {
+      width: 18px;
+      height: 18px;
+    }
+    .audio-muted { display: none; }
+    .audio-toggle.muted .audio-icon { display: none; }
+    .audio-toggle.muted .audio-muted { display: block; color: var(--text-dim); }
+
     .flip-card-front,
     .flip-card-back {
       position: absolute;
@@ -856,31 +906,50 @@
       <div class="timeline-track" id="timelineTrack">
         <div class="timeline-card">
           <p class="time">ENERO</p>
-          <div class="icon-big">🤝</div>
+          <div class="icon-big">
+            <svg class="tl-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="19" r="7"/>
+              <circle cx="30" cy="19" r="7"/>
+              <path d="M11 34c0-4 7-6 13-6s13 2 13 6"/>
+            </svg>
+          </div>
           <h3>Nos conocimos</h3>
           <p>Llegaste a La Sirena y sin saberlo, empezaste a hacer el trabajo más soportable. Todo empezó con una broma tonta.</p>
         </div>
         <div class="timeline-card">
           <p class="time">FEBRERO</p>
-          <div class="icon-big">🤖</div>
+          <div class="icon-big">
+            <img class="tl-sticker" src="assets/RobAdele.png" alt="Rob & Adele" loading="lazy">
+          </div>
           <h3>Rob, Adele y las proyecciones</h3>
           <p>"Rob controla mi mente", proyecciones astrales y todas las bromas que solo nosotros entendíamos. Nuestro humor absurdo nos unió.</p>
         </div>
         <div class="timeline-card">
           <p class="time">MARZO</p>
-          <div class="icon-big">💪</div>
+          <div class="icon-big">
+            <img class="tl-sticker" src="assets/marianlove.webp" alt="Marian love" loading="lazy">
+          </div>
           <h3>Soporte emocional</h3>
           <p>Los turnos pesados se volvieron ligeros. Te convertiste en mi ancla en ese caos, y yo en la tuya.</p>
         </div>
         <div class="timeline-card">
           <p class="time">ABRIL</p>
-          <div class="icon-big">🌧️</div>
+          <div class="icon-big">
+            <svg class="tl-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 27c-3 0-5-2-5-5s2-5 5-5c0-5 5-8 10-7 3 2 5 6 3 9 4 0 6 3 5 6s-4 4-6 4"/>
+              <path d="M24 30v6"/>
+              <path d="M19 31v4"/>
+              <path d="M29 31v4"/>
+            </svg>
+          </div>
           <h3>Tiempos difíciles</h3>
           <p>El estrés empezó a pesar. Ambos pasando malos momentos, pero aguantando porque sabíamos que el otro estaba ahí.</p>
         </div>
         <div class="timeline-card">
           <p class="time">MAYO</p>
-          <div class="icon-big">💥</div>
+          <div class="icon-big">
+            <img class="tl-sticker" src="assets/MarianFace.webp" alt="Marian face" loading="lazy">
+          </div>
           <h3>El malentendido</h3>
           <p>Todo explotó. Dije lo que no debía y casi pierdo a la persona más importante que encontré en ese trabajo.</p>
         </div>
@@ -1032,6 +1101,20 @@
       </div>
     </div>
   </section>
+
+  <audio id="bgAudio" src="assets/bg-lain.mp3" loop preload="auto"></audio>
+  <button id="audioToggle" class="audio-toggle" aria-label="Toggle music">
+    <svg class="audio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </svg>
+    <svg class="audio-icon audio-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+  </button>
 
   <!-- ════════════════════════════════════════════════════════
      SECTION 5 — CARTA ASTRAL (LOVE LETTER)
@@ -1455,7 +1538,39 @@
       window.addEventListener('resize', () => { calcMaxTranslate(); clamp(currentTranslate); render(); });
     })();
 
-    // ─── 7. INTERSECTION OBSERVER (Scroll reveals) ───
+    // ─── 7. BACKGROUND AUDIO ───
+    (function() {
+      const audio = document.getElementById('bgAudio');
+      const toggle = document.getElementById('audioToggle');
+      if (!audio || !toggle) return;
+
+      audio.volume = 0.15;
+      let started = false;
+
+      function startAudio() {
+        if (started) return;
+        started = true;
+        audio.play().catch(() => {});
+        document.removeEventListener('click', startAudio);
+        document.removeEventListener('touchstart', startAudio);
+      }
+
+      document.addEventListener('click', startAudio);
+      document.addEventListener('touchstart', startAudio);
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (audio.paused) {
+          audio.play().catch(() => {});
+          toggle.classList.remove('muted');
+        } else {
+          audio.pause();
+          toggle.classList.add('muted');
+        }
+      });
+    })();
+
+    // ─── 8. INTERSECTION OBSERVER (Scroll reveals) ───
     (function() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1471,14 +1586,14 @@
       });
     })();
 
-    // ─── 8. FLIP CARDS ───
+    // ─── 9. FLIP CARDS ───
     document.querySelectorAll('.flip-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('flipped');
       });
     });
 
-    // ─── 9. TYPEWRITER ───
+    // ─── 10. TYPEWRITER ───
     (function() {
       const text = [
         "Me desesperé y me quise desquitar con la única amig@ que tengo (y tuve, cómo me duele escribir esto). No fue lo adecuado. Mal pensé las cosas.",
@@ -1600,7 +1715,7 @@
       cartaObserver.observe(document.getElementById('carta'));
     })();
 
-    // ─── 10. ORBIT ALIGNMENT ───
+    // ─── 11. ORBIT ALIGNMENT ───
     (function() {
       const btn = document.getElementById('alignBtn');
       const diego = document.getElementById('orbitDiego');
@@ -1649,7 +1764,7 @@
       });
     })();
 
-    // ─── 11. HERO PARALLAX ───
+    // ─── 12. HERO PARALLAX ───
     if (lenis) {
       lenis.on('scroll', (e) => {
         const hero = document.getElementById('hero');
