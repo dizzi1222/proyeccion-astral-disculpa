@@ -336,8 +336,151 @@
       transition: transform 0.5s ease;
       transform-style: preserve-3d;
     }
-    .flip-card.flipped .flip-card-inner {
-      transform: rotateY(180deg);
+    .orbit-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ─── Rewind Button (Astral SVGs) ─── */
+    .rewind-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem 0.5rem 0.65rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(244, 114, 182, 0.25);
+      background: rgba(244, 114, 182, 0.06);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .rewind-btn:hover {
+      background: rgba(244, 114, 182, 0.15);
+      border-color: rgba(244, 114, 182, 0.5);
+      box-shadow: 0 0 20px rgba(244, 114, 182, 0.15);
+    }
+    .rewind-btn-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(244, 114, 182, 0.3);
+      flex-shrink: 0;
+    }
+    .rewind-btn-text {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--pink);
+      letter-spacing: 0.03em;
+    }
+    .rewind-btn.rewinding {
+      animation: pulse-border 1.2s ease-in-out infinite;
+    }
+    .rv-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--pink);
+      flex-shrink: 0;
+    }
+    .rv-spinner {
+      width: 18px;
+      height: 18px;
+      color: var(--gold);
+      flex-shrink: 0;
+      animation: spin 1s linear infinite;
+    }
+    .rv-spinner circle {
+      stroke: var(--gold);
+      fill: none;
+      stroke-dasharray: 45;
+      stroke-linecap: round;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(244, 114, 182, 0.25); }
+      50% { border-color: rgba(251, 191, 36, 0.6); box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); }
+    }
+
+    /* ─── Mural de Recuerdos ─── */
+    .mural-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.65rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .mural-card {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      aspect-ratio: 4/3;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  border-color 0.4s ease,
+                  box-shadow 0.4s ease,
+                  opacity 0.5s ease,
+                  filter 0.5s ease;
+    }
+    .mural-card:hover {
+      transform: scale(1.03) translateY(-4px);
+      border-color: rgba(244, 114, 182, 0.35);
+      box-shadow: 0 12px 40px rgba(244, 114, 182, 0.12);
+      z-index: 3;
+    }
+    .mural-grid:has(.mural-card:hover) .mural-card:not(:hover) {
+      opacity: 0.7;
+      filter: saturate(0.4) brightness(0.6);
+    }
+    .mural-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .mural-card:hover img {
+      transform: scale(1.1);
+    }
+    .mural-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(7,7,26,0.85) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 0.65rem;
+    }
+    .mural-card:hover .mural-overlay {
+      opacity: 1;
+    }
+    .mural-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: white;
+      background: rgba(244, 114, 182, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(244, 114, 182, 0.2);
+      letter-spacing: 0.02em;
+    }
+    .mural-card.featured { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+    .mural-card.span2 { grid-column: span 2; }
+    .mural-card.banner { grid-column: 1 / -1; aspect-ratio: 7/1; }
+    @media (max-width: 768px) {
+      .mural-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .mural-card.featured { grid-column: span 2; grid-row: span 1; aspect-ratio: 16/9; }
+      .mural-card.span2 { grid-column: span 2; }
+      .mural-card.banner { aspect-ratio: 5/1; }
+    }
+    @media (max-width: 480px) {
+      .mural-grid { grid-template-columns: repeat(2, 1fr); }
+      .mural-card.featured { grid-column: 1 / -1; }
     }
     .flip-card-front,
     .flip-card-back {
@@ -700,8 +843,8 @@
   <!-- ════════════════════════════════════════════════════════
      SECTION 2 — BITÁCORA DE VUELO (Horizontal Monthly Slider)
   ════════════════════════════════════════════════════════ -->
-  <section id="bitacora">
-    <p class="timeline-instruction">↔ Desliza por los meses</p>
+  <section id="bitacora" data-lenis-prevent>
+    <p class="timeline-instruction">🖱 Rueda aquí o arrastra para navegar los meses</p>
     <div class="inner" id="bitacoraInner">
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
         ✦ Línea de Tiempo ✦
@@ -820,7 +963,78 @@
   </section>
 
   <!-- ════════════════════════════════════════════════════════
-     SECTION 4 — CARTA ASTRAL (LOVE LETTER)
+     SECTION 4 — MURAL DE RECUERDOS
+  ════════════════════════════════════════════════════════ -->
+  <section id="mural">
+    <div class="inner">
+      <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
+        ✦ Mural de Recuerdos ✦
+      </h2>
+      <p class="text-center text-slate-400 text-sm mb-8 reveal">
+        Las series, memes e historias que tejieron estos 5 meses
+      </p>
+
+      <div class="mural-grid">
+        <div class="mural-card featured"><img src="assets/MarianFeliz.webp" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Tu sonrisa te delata</span></div></div>
+        <div class="mural-card"><img src="assets/louise-happy.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Cuando te reías de mis bromas</span></div></div>
+        <div class="mural-card"><img src="assets/berserk-guts-casca.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Guts & Casca: nosotros</span></div></div>
+        <div class="mural-card"><img src="assets/Missandei.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Missandei sabe lo que duele</span></div></div>
+
+        <div class="mural-card"><img src="assets/TokyoGhoulPeak.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Tokyo Ghoul: nuestro vibe</span></div></div>
+        <div class="mural-card span2"><img src="assets/laughing-dr-david-ferguson.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Dr. Ferguson: nosotros riéndonos</span></div></div>
+        <div class="mural-card"><img src="assets/moto-aesthethic-retro-nostalgic.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Noches de moto y nostalgia</span></div></div>
+
+        <div class="mural-card"><img src="assets/exodus-moses.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Moisés guiándonos</span></div></div>
+        <div class="mural-card"><img src="assets/RobAdele.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Rob & Adele: los culpables</span></div></div>
+        <div class="mural-card"><img src="assets/guts-casca-kiss.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Beso de Guts & Casca</span></div></div>
+        <div class="mural-card"><img src="assets/missandei-dracarys.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Dracarys</span></div></div>
+
+        <div class="mural-card span2"><img src="assets/open-door-louise-barnsley.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">La puerta que no debí abrir</span></div></div>
+        <div class="mural-card"><img src="assets/MarianLlora.webp" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Te hice llorar... perdón</span></div></div>
+        <div class="mural-card"><img src="assets/motomami.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Motomami: tu favorita</span></div></div>
+
+        <div class="mural-card"><img src="assets/SuiGodIshidaTokyoCinemaGhoul.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Sui Ishida: genio absoluto</span></div></div>
+        <div class="mural-card"><img src="assets/missandei-grey-worm.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Grey Worm & Missandei</span></div></div>
+        <div class="mural-card"><img src="assets/pride-and-prejudice.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Orgullo y prejuicio</span></div></div>
+        <div class="mural-card span2"><img src="assets/berserk-casca-beautiful.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Casca es hermosa</span></div></div>
+
+        <div class="mural-card"><img src="assets/will-casca-save-guts.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">¿Salvará Casca a Guts?</span></div></div>
+        <div class="mural-card"><img src="assets/MarianFace.webp" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Tu cara de decepción</span></div></div>
+        <div class="mural-card"><img src="assets/berserk-guts-casca-dance.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Bailando como Guts & Casca</span></div></div>
+        <div class="mural-card"><img src="assets/jogging-louise-barnsley.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Corriendo como Louise</span></div></div>
+
+        <div class="mural-card span2"><img src="assets/raining-drenched-gutscasca.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Bajo la lluvia, como Guts y Casca</span></div></div>
+        <div class="mural-card"><img src="assets/missandei-and-grey-worm-horse-ride.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Cabalgando juntos</span></div></div>
+        <div class="mural-card"><img src="assets/kaneki-touka.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Kaneki & Touka</span></div></div>
+
+        <div class="mural-card"><img src="assets/TokyoGodPeak.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Tokyo Ghoul peak fiction</span></div></div>
+        <div class="mural-card"><img src="assets/guts-casca-kiss2.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Guts & Casca forever</span></div></div>
+        <div class="mural-card"><img src="assets/missandei-and-grey-worm-teary-eyed.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Lágrimas de Grey Worm</span></div></div>
+        <div class="mural-card"><img src="assets/berserk-casca-cry.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Casca llora</span></div></div>
+
+        <div class="mural-card span2"><img src="assets/kaneki-touka2.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Kaneki & Touka: el amor verdadero</span></div></div>
+        <div class="mural-card"><img src="assets/casca;3.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Casca ;3</span></div></div>
+        <div class="mural-card"><img src="assets/missandei-game-of-thrones.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">La reina Missandei</span></div></div>
+
+        <div class="mural-card"><img src="assets/TokyoGhoulPeak.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Siempre Tokyo Ghoul</span></div></div>
+        <div class="mural-card"><img src="assets/guts-casca-kiss3.jpg" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">El amor en medio del caos</span></div></div>
+        <div class="mural-card"><img src="assets/blank-stare-rob-hoyle.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Rob mirándome fijo</span></div></div>
+        <div class="mural-card span2"><img src="assets/game-of-thrones-daenerys.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Mother of Dragons</span></div></div>
+
+        <div class="mural-card"><img src="assets/berserk-casca-gutssex.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Guts & Casca: intensidad</span></div></div>
+        <div class="mural-card"><img src="assets/griffith.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Griffith hizo todo mal</span></div></div>
+        <div class="mural-card"><img src="assets/checking-on-knife-eve-hewson.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Eve revisando el cuchillo</span></div></div>
+        <div class="mural-card"><img src="assets/stop-eating-eve-hewson.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Eve: 'deja de comer'</span></div></div>
+
+        <div class="mural-card"><img src="assets/berserk-casca-gutssex2.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Guts & Casca: pasión</span></div></div>
+        <div class="mural-card"><img src="assets/painting-eve-hewson.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Eve pintando recuerdos</span></div></div>
+        <div class="mural-card banner"><img src="assets/RobIsLouise.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Rob IS Louise — la teoría que lo cambió todo</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════════
+     SECTION 5 — CARTA ASTRAL (LOVE LETTER)
   ════════════════════════════════════════════════════════ -->
   <section id="carta">
     <div class="inner">
@@ -849,14 +1063,19 @@
       <div class="flex justify-center mt-6 reveal">
         <button id="rewindBtn" class="rewind-btn" onclick="void(0)">
           <img src="assets/MarianFeliz.webp" alt="Marian" class="rewind-btn-img" loading="lazy">
-          <span class="rewind-btn-text">⏪ Rebobinar carta ⏪</span>
+          <span class="rewind-btn-text">Rebobinar carta</span>
+          <svg class="rv-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8" opacity="0.15"/>
+            <polyline points="14 16 10 12 14 8"/>
+            <polyline points="10 16 6 12 10 8"/>
+          </svg>
         </button>
       </div>
     </div>
   </section>
 
   <!-- ════════════════════════════════════════════════════════
-     SECTION 5 — RECONCILIACIÓN CÓSMICA
+     SECTION 6 — RECONCILIACIÓN CÓSMICA
   ════════════════════════════════════════════════════════ -->
   <section id="reconciliacion">
     <div class="inner text-center">
@@ -909,7 +1128,7 @@
   </section>
 
   <!-- ════════════════════════════════════════════════════════
-     SECTION 6 — EPÍLOGO
+     SECTION 7 — EPÍLOGO
   ════════════════════════════════════════════════════════ -->
   <section id="epilogo">
     <div class="inner text-center max-w-2xl">
@@ -1138,7 +1357,7 @@
       });
     })();
 
-    // ─── 6. HORIZONTAL TIMELINE SCROLL + DRAG ───
+    // ─── 6. HORIZONTAL TIMELINE (wheel + drag) ───
     (function() {
       const track = document.getElementById('timelineTrack');
       const progressBar = document.getElementById('timelineProgressBar');
@@ -1150,40 +1369,49 @@
       let dragStartX = 0;
       let dragTranslate = 0;
       let currentTranslate = 0;
-      let scrollBased = true;
+      let isAtEdge = false;
 
       function calcMaxTranslate() {
         maxTranslate = track.scrollWidth - section.offsetWidth;
         if (maxTranslate < 0) maxTranslate = 0;
       }
 
-      function updateTimeline() {
-        if (isDragging) return;
-        calcMaxTranslate();
-
-        const scrollY = lenis ? (lenis.actualScroll || lenis.targetScroll || 0) : window.scrollY;
-        const sectionAbsTop = section.offsetTop;
-        const windowH = window.innerHeight;
-
-        const scrollStart = sectionAbsTop - windowH;
-        const scrollEnd = sectionAbsTop + section.offsetHeight;
-        const scrollRange = scrollEnd - scrollStart;
-
-        let progress = scrollRange > 0 ? (scrollY - scrollStart) / scrollRange : 0;
-        progress = Math.max(0, Math.min(1, progress));
-
-        currentTranslate = -progress * maxTranslate;
-        track.style.transform = `translateX(${currentTranslate}px)`;
-
-        if (progressBar) {
-          progressBar.style.width = `${progress * 100}%`;
-        }
+      function clamp(v) {
+        return Math.max(-maxTranslate, Math.min(0, v));
       }
 
-      // ── Touch / Drag support ──
+      function updateProgress() {
+        const p = maxTranslate > 0 ? Math.abs(currentTranslate) / maxTranslate : 0;
+        if (progressBar) progressBar.style.width = `${p * 100}%`;
+      }
+
+      function render() {
+        track.style.transform = `translateX(${currentTranslate}px)`;
+        updateProgress();
+      }
+
+      calcMaxTranslate();
+
+      // ── Wheel over section — prevent page scroll, move timeline ──
+      section.addEventListener('wheel', (e) => {
+        if (isDragging) return;
+        const dx = e.deltaY + e.deltaX;
+        if (Math.abs(dx) < 2) return;
+
+        e.preventDefault();
+
+        let next = currentTranslate - dx;
+        next = clamp(next);
+
+        if (next !== currentTranslate) {
+          currentTranslate = next;
+          render();
+        }
+      }, { passive: false });
+
+      // ── Touch drag ──
       track.addEventListener('touchstart', (e) => {
         isDragging = true;
-        scrollBased = false;
         dragStartX = e.touches[0].clientX;
         dragTranslate = currentTranslate;
         track.style.transition = 'none';
@@ -1192,28 +1420,18 @@
       track.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
         const dx = e.touches[0].clientX - dragStartX;
-        let newTranslate = dragTranslate + dx;
-        newTranslate = Math.max(-maxTranslate, Math.min(0, newTranslate));
-        track.style.transform = `translateX(${newTranslate}px)`;
-        currentTranslate = newTranslate;
-
-        const dragProgress = maxTranslate > 0 ? Math.abs(newTranslate) / maxTranslate : 0;
-        if (progressBar) {
-          progressBar.style.width = `${dragProgress * 100}%`;
-        }
+        currentTranslate = clamp(dragTranslate + dx);
+        render();
       }, { passive: true });
 
       track.addEventListener('touchend', () => {
         isDragging = false;
         track.style.transition = '';
-        // Keep scroll-based sync paused for a moment to avoid jump
-        setTimeout(() => { scrollBased = true; }, 300);
       }, { passive: true });
 
-      // Mouse drag for desktop too
+      // ── Mouse drag ──
       track.addEventListener('mousedown', (e) => {
         isDragging = true;
-        scrollBased = false;
         dragStartX = e.clientX;
         dragTranslate = currentTranslate;
         track.style.transition = 'none';
@@ -1223,15 +1441,8 @@
       window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         const dx = e.clientX - dragStartX;
-        let newTranslate = dragTranslate + dx;
-        newTranslate = Math.max(-maxTranslate, Math.min(0, newTranslate));
-        track.style.transform = `translateX(${newTranslate}px)`;
-        currentTranslate = newTranslate;
-
-        const dragProgress = maxTranslate > 0 ? Math.abs(newTranslate) / maxTranslate : 0;
-        if (progressBar) {
-          progressBar.style.width = `${dragProgress * 100}%`;
-        }
+        currentTranslate = clamp(dragTranslate + dx);
+        render();
       });
 
       window.addEventListener('mouseup', () => {
@@ -1239,16 +1450,9 @@
         isDragging = false;
         track.style.transition = '';
         track.style.cursor = '';
-        setTimeout(() => { scrollBased = true; }, 300);
       });
 
-      if (lenis) {
-        lenis.on('scroll', () => { if (scrollBased) updateTimeline(); });
-      } else {
-        window.addEventListener('scroll', () => { if (scrollBased) updateTimeline(); });
-      }
-      window.addEventListener('resize', () => { calcMaxTranslate(); updateTimeline(); });
-      setTimeout(() => { calcMaxTranslate(); updateTimeline(); }, 100);
+      window.addEventListener('resize', () => { calcMaxTranslate(); clamp(currentTranslate); render(); });
     })();
 
     // ─── 7. INTERSECTION OBSERVER (Scroll reveals) ───
@@ -1320,7 +1524,10 @@
       function resetBtnText() {
         if (rewindBtn) {
           rewindBtn.classList.remove('rewinding');
-          rewindBtn.querySelector('.rewind-btn-text').textContent = '⏪ Rebobinar carta ⏪';
+          const icon = rewindBtn.querySelector('.rv-icon');
+          const spinner = rewindBtn.querySelector('.rv-spinner');
+          if (icon) icon.style.display = '';
+          if (spinner) spinner.remove();
         }
       }
 
@@ -1346,7 +1553,21 @@
         cursor.classList.remove('done');
         letterEnd.style.display = 'none';
         rewindBtn.classList.add('rewinding');
-        rewindBtn.querySelector('.rewind-btn-text').textContent = '⏪ Rebobinando... ⏪';
+        const icon = rewindBtn.querySelector('.rv-icon');
+        if (icon) {
+          icon.style.display = 'none';
+          const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          spinner.setAttribute('class', 'rv-spinner');
+          spinner.setAttribute('viewBox', '0 0 24 24');
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', '12');
+          circle.setAttribute('cy', '12');
+          circle.setAttribute('r', '8');
+          circle.setAttribute('stroke-dasharray', '45');
+          circle.setAttribute('stroke-linecap', 'round');
+          spinner.appendChild(circle);
+          icon.parentNode.insertBefore(spinner, icon.nextSibling);
+        }
         rewindChar();
       }
 
