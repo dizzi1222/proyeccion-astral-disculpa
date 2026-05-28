@@ -273,14 +273,14 @@
       min-height: 48px;
     }
     .tl-icon {
-      width: 48px;
-      height: 48px;
+      width: 60px;
+      height: 60px;
       color: var(--pink);
       opacity: 0.7;
     }
     .tl-sticker {
-      width: 48px;
-      height: 48px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid rgba(244, 114, 182, 0.25);
@@ -893,8 +893,8 @@
   <!-- ════════════════════════════════════════════════════════
      SECTION 2 — BITÁCORA DE VUELO (Horizontal Monthly Slider)
   ════════════════════════════════════════════════════════ -->
-  <section id="bitacora" data-lenis-prevent>
-    <p class="timeline-instruction">🖱 Rueda aquí o arrastra para navegar los meses</p>
+  <section id="bitacora">
+    <p class="timeline-instruction">🖱 Rueda o arrastra sobre la línea de tiempo</p>
     <div class="inner" id="bitacoraInner">
       <h2 class="text-3xl sm:text-4xl font-display font-bold text-center mb-2 reveal" data-scramble>
         ✦ Línea de Tiempo ✦
@@ -1440,7 +1440,7 @@
       });
     })();
 
-    // ─── 6. HORIZONTAL TIMELINE (wheel + drag) ───
+    // ─── 6. HORIZONTAL TIMELINE (scroll-sync + wheel + drag) ───
     (function() {
       const track = document.getElementById('timelineTrack');
       const progressBar = document.getElementById('timelineProgressBar');
@@ -1452,7 +1452,7 @@
       let dragStartX = 0;
       let dragTranslate = 0;
       let currentTranslate = 0;
-      let isAtEdge = false;
+      let scrollBased = true;
 
       function calcMaxTranslate() {
         maxTranslate = track.scrollWidth - section.offsetWidth;
@@ -1473,28 +1473,49 @@
         updateProgress();
       }
 
+      function updateFromScroll() {
+        if (isDragging || !scrollBased) return;
+        calcMaxTranslate();
+
+        const scrollY = lenis ? (lenis.actualScroll || lenis.targetScroll || 0) : window.scrollY;
+        const sectionAbsTop = section.offsetTop;
+        const windowH = window.innerHeight;
+
+        const scrollStart = sectionAbsTop - windowH;
+        const scrollEnd = sectionAbsTop + section.offsetHeight;
+        const scrollRange = scrollEnd - scrollStart;
+
+        let progress = scrollRange > 0 ? (scrollY - scrollStart) / scrollRange : 0;
+        progress = Math.max(0, Math.min(1, progress));
+
+        currentTranslate = -progress * maxTranslate;
+        render();
+      }
+
       calcMaxTranslate();
 
-      // ── Wheel over section — prevent page scroll, move timeline ──
-      section.addEventListener('wheel', (e) => {
-        if (isDragging) return;
+      // ── Wheel over track — moves timeline, page scrolls normally ──
+      track.addEventListener('wheel', (e) => {
         const dx = e.deltaY + e.deltaX;
         if (Math.abs(dx) < 2) return;
-
-        e.preventDefault();
-
-        let next = currentTranslate - dx;
-        next = clamp(next);
-
+        let next = clamp(currentTranslate - dx);
         if (next !== currentTranslate) {
           currentTranslate = next;
           render();
         }
-      }, { passive: false });
+      });
+
+      // ── Scroll-based sync ──
+      if (lenis) {
+        lenis.on('scroll', updateFromScroll);
+      } else {
+        window.addEventListener('scroll', updateFromScroll, { passive: true });
+      }
 
       // ── Touch drag ──
       track.addEventListener('touchstart', (e) => {
         isDragging = true;
+        scrollBased = false;
         dragStartX = e.touches[0].clientX;
         dragTranslate = currentTranslate;
         track.style.transition = 'none';
@@ -1502,19 +1523,20 @@
 
       track.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        const dx = e.touches[0].clientX - dragStartX;
-        currentTranslate = clamp(dragTranslate + dx);
+        currentTranslate = clamp(dragTranslate + (e.touches[0].clientX - dragStartX));
         render();
       }, { passive: true });
 
       track.addEventListener('touchend', () => {
         isDragging = false;
         track.style.transition = '';
+        setTimeout(() => { scrollBased = true; }, 300);
       }, { passive: true });
 
       // ── Mouse drag ──
       track.addEventListener('mousedown', (e) => {
         isDragging = true;
+        scrollBased = false;
         dragStartX = e.clientX;
         dragTranslate = currentTranslate;
         track.style.transition = 'none';
@@ -1523,8 +1545,7 @@
 
       window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        const dx = e.clientX - dragStartX;
-        currentTranslate = clamp(dragTranslate + dx);
+        currentTranslate = clamp(dragTranslate + (e.clientX - dragStartX));
         render();
       });
 
@@ -1533,9 +1554,11 @@
         isDragging = false;
         track.style.transition = '';
         track.style.cursor = '';
+        setTimeout(() => { scrollBased = true; }, 300);
       });
 
-      window.addEventListener('resize', () => { calcMaxTranslate(); clamp(currentTranslate); render(); });
+      window.addEventListener('resize', () => { calcMaxTranslate(); currentTranslate = clamp(currentTranslate); render(); });
+      setTimeout(updateFromScroll, 150);
     })();
 
     // ─── 7. BACKGROUND AUDIO ───
