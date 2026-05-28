@@ -767,6 +767,105 @@
       50% { border-color: rgba(251, 191, 36, 0.6); box-shadow: 0 0 20px rgba(251, 191, 36, 0.2); }
     }
 
+    /* ─── Loading Screen ─── */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--space-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease;
+    }
+    .loading-screen.hidden { opacity: 0; pointer-events: none; }
+    .loading-orbit {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+    .loading-sun {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--gold), #d97706);
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.5);
+    }
+    .loading-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 1px solid rgba(129, 140, 248, 0.15);
+    }
+    .loading-ring-2 {
+      width: 150px; height: 150px;
+      border-color: rgba(244, 114, 182, 0.1);
+    }
+    .loading-body {
+      position: absolute;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #000;
+    }
+    .loading-diego {
+      top: -8px; left: calc(50% - 18px);
+      background: radial-gradient(circle, var(--lilac), #5b51d0);
+      box-shadow: 0 0 15px rgba(129, 140, 248, 0.3);
+      animation: load-orbit-diego 1.2s linear infinite;
+    }
+    .loading-marian {
+      top: -8px; left: calc(50% - 18px);
+      background: radial-gradient(circle, var(--pink), #db2777);
+      box-shadow: 0 0 15px rgba(244, 114, 182, 0.3);
+      animation: load-orbit-marian 1.6s linear infinite;
+    }
+    @keyframes load-orbit-diego {
+      from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+      to   { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+    }
+    @keyframes load-orbit-marian {
+      from { transform: rotate(180deg) translateX(75px) rotate(-180deg); }
+      to   { transform: rotate(540deg) translateX(75px) rotate(-540deg); }
+    }
+
+    /* ─── Toast Notification ─── */
+    .toast-notif {
+      position: fixed;
+      bottom: 4rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 9998;
+      padding: 0.6rem 1.2rem;
+      border-radius: 9999px;
+      background: rgba(7, 7, 26, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(244, 114, 182, 0.2);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
+      text-align: center;
+      max-width: 90vw;
+      white-space: nowrap;
+    }
+    .toast-notif.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     /* ─── Orbits ─── */
     .orbit-container {
       position: relative;
@@ -932,6 +1031,20 @@
   </style>
 </head>
 <body>
+
+  <!-- ─── LOADING SCREEN ─── -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-orbit">
+      <div class="loading-sun"></div>
+      <div class="loading-ring"></div>
+      <div class="loading-ring loading-ring-2"></div>
+      <div class="loading-body loading-diego">D</div>
+      <div class="loading-body loading-marian">M</div>
+    </div>
+  </div>
+
+  <!-- ─── TOAST NOTIFICATION ─── -->
+  <div id="toastNotif" class="toast-notif"></div>
 
   <canvas id="starfield"></canvas>
 
@@ -1332,7 +1445,22 @@
      JAVASCRIPT
   ════════════════════════════════════════════════════════ -->
   <script>
-    // ─── 1. STARFIELD (Canvas) ───
+    // ─── 1. LOADING SCREEN ───
+    (function() {
+      const screen = document.getElementById('loadingScreen');
+      if (!screen) return;
+      if (sessionStorage.getItem('visited')) {
+        screen.remove();
+        return;
+      }
+      sessionStorage.setItem('visited', '1');
+      setTimeout(() => {
+        screen.classList.add('hidden');
+        setTimeout(() => screen.remove(), 600);
+      }, 2000);
+    })();
+
+    // ─── 2. STARFIELD (Canvas) ───
     (function() {
       const canvas = document.getElementById('starfield');
       const ctx = canvas.getContext('2d');
@@ -1395,7 +1523,7 @@
       if (origRAF) cancelAnimationFrame(origRAF);
     })();
 
-    // ─── 2. LENIS SMOOTH SCROLL ───
+    // ─── 3. LENIS SMOOTH SCROLL ───
     let lenis = null;
     if (window.Lenis) {
       lenis = new Lenis({
@@ -1410,7 +1538,7 @@
       requestAnimationFrame(raf);
     }
 
-    // ─── 3. CUSTOM CURSOR (Spring physics) ───
+    // ─── 4. CUSTOM CURSOR (Spring physics) ───
     (function() {
       const dot = document.createElement('div');
       dot.id = 'cursor-dot';
@@ -1454,7 +1582,7 @@
       document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
     })();
 
-    // ─── 4. MAGNETIC BUTTONS ───
+    // ─── 5. MAGNETIC BUTTONS ───
     (function() {
       document.querySelectorAll('.orbit-btn, .rewind-btn, .magnetic').forEach(btn => {
         btn.addEventListener('mousemove', (e) => {
@@ -1469,7 +1597,7 @@
       });
     })();
 
-    // ─── 5. TEXT SCRAMBLE EFFECT ───
+    // ─── 6. TEXT SCRAMBLE EFFECT ───
     (function() {
       const chars = '!<>-_\\/[]{}—=+*^?#________';
       const elements = document.querySelectorAll('[data-scramble]');
@@ -1518,7 +1646,7 @@
       });
     })();
 
-    // ─── 6. HORIZONTAL TIMELINE (scroll-sync + drag) ───
+    // ─── 7. HORIZONTAL TIMELINE (scroll-sync + drag) ───
     (function() {
       const track = document.getElementById('timelineTrack');
       const progressBar = document.getElementById('timelineProgressBar');
@@ -1623,7 +1751,7 @@
       setTimeout(updateFromScroll, 150);
     })();
 
-    // ─── 7. BACKGROUND AUDIO ───
+    // ─── 8. BACKGROUND AUDIO ───
     (function() {
       const audio = document.getElementById('bgAudio');
       const toggle = document.getElementById('audioToggle');
@@ -1645,6 +1773,15 @@
       document.addEventListener('click', startAudio);
       document.addEventListener('touchstart', startAudio);
 
+      // ── Tooltip: hover instantáneo + click ──
+      toggle.addEventListener('mouseenter', () => {
+        if (tooltip) tooltip.classList.add('visible');
+      });
+
+      toggle.addEventListener('mouseleave', () => {
+        if (tooltip) tooltip.classList.remove('visible');
+      });
+
       toggle.addEventListener('click', (e) => {
         e.stopPropagation();
         if (audio.paused) {
@@ -1654,22 +1791,17 @@
           audio.pause();
           toggle.classList.add('muted');
         }
+        if (tooltip) tooltip.classList.add('visible');
       });
 
-      // ── 3s hover tooltip ──
-      toggle.addEventListener('mouseenter', () => {
-        hoverTimer = setTimeout(() => {
-          if (tooltip) tooltip.classList.add('visible');
-        }, 3000);
-      });
-
-      toggle.addEventListener('mouseleave', () => {
-        clearTimeout(hoverTimer);
-        if (tooltip) tooltip.classList.remove('visible');
+      document.addEventListener('click', (e) => {
+        if (tooltip && !toggle.contains(e.target)) {
+          tooltip.classList.remove('visible');
+        }
       });
     })();
 
-    // ─── 8. RANDOM PHRASES ───
+    // ─── 9. RANDOM PHRASES ───
     (function() {
       const el = document.getElementById('phraseFloat');
       if (!el) return;
@@ -1707,7 +1839,7 @@
       setTimeout(showNext, 3000);
     })();
 
-    // ─── 9. INTERSECTION OBSERVER (Scroll reveals) ───
+    // ─── 10. INTERSECTION OBSERVER (Scroll reveals) ───
     (function() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1723,14 +1855,14 @@
       });
     })();
 
-    // ─── 10. FLIP CARDS ───
+    // ─── 11. FLIP CARDS ───
     document.querySelectorAll('.flip-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('flipped');
       });
     });
 
-    // ─── 11. TYPEWRITER ───
+    // ─── 12. TYPEWRITER ───
     (function() {
       const text = [
         "Me desesperé y me quise desquitar con la única amig@ que tengo (y tuve, cómo me duele escribir esto). No fue lo adecuado. Mal pensé las cosas.",
@@ -1752,11 +1884,28 @@
       const cursor = document.getElementById('typewriterCursor');
       const letterEnd = document.getElementById('letter-end');
       const rewindBtn = document.getElementById('rewindBtn');
+      const toast = document.getElementById('toastNotif');
       let index = 0;
       let isWriting = false;
       let isRewinding = false;
       let hasStarted = false;
       let timeoutId = null;
+      let rewindCount = 0;
+
+      const rewindMessages = [
+        "¿Por qué tan indecisa? ¿Descubriste un nuevo juguete?",
+        "Otra vez? Eres como Homero con el control remoto",
+        "La definición de locura es rebobinar 20 veces seguidas",
+        "Ya leíste la carta o solo te gusta ver cómo se borra?",
+        "Te mamaste, Marianne... es la misma carta de siempre",
+      ];
+
+      function showToast(msg) {
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
 
       function writeChar() {
         if (index >= text.length) {
@@ -1827,6 +1976,10 @@
         rewindBtn.addEventListener('click', () => {
           if (isRewinding) return;
           if (target.textContent.length > 0) {
+            rewindCount++;
+            if (rewindCount > 1) {
+              showToast(rewindMessages[(rewindCount - 2) % rewindMessages.length]);
+            }
             startRewind();
           } else if (!hasStarted) {
             hasStarted = true;
@@ -1852,7 +2005,7 @@
       cartaObserver.observe(document.getElementById('carta'));
     })();
 
-    // ─── 12. ORBIT ALIGNMENT ───
+    // ─── 13. ORBIT ALIGNMENT ───
     (function() {
       const btn = document.getElementById('alignBtn');
       const diego = document.getElementById('orbitDiego');
@@ -1901,7 +2054,7 @@
       });
     })();
 
-    // ─── 13. HERO PARALLAX ───
+    // ─── 14. HERO PARALLAX ───
     if (lenis) {
       lenis.on('scroll', (e) => {
         const hero = document.getElementById('hero');
