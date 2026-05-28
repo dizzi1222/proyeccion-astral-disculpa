@@ -25,6 +25,11 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.25); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.4); }
+
     :root {
       --space-bg: #07071a;
       --pink: #f472b6;
@@ -491,12 +496,12 @@
     }
     .mural-card.featured { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
     .mural-card.span2 { grid-column: span 2; }
-    .mural-card.banner { grid-column: 1 / -1; aspect-ratio: 7/1; }
+    .mural-card.banner { grid-column: 1 / -1; aspect-ratio: 3/1; }
     @media (max-width: 768px) {
       .mural-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
       .mural-card.featured { grid-column: span 2; grid-row: span 1; aspect-ratio: 16/9; }
       .mural-card.span2 { grid-column: span 2; }
-      .mural-card.banner { aspect-ratio: 5/1; }
+      .mural-card.banner { aspect-ratio: 2/1; }
     }
     @media (max-width: 480px) {
       .mural-grid { grid-template-columns: repeat(2, 1fr); }
@@ -534,6 +539,74 @@
     .audio-muted { display: none; }
     .audio-toggle.muted .audio-icon { display: none; }
     .audio-toggle.muted .audio-muted { display: block; color: var(--text-dim); }
+
+    .audio-tooltip {
+      position: absolute;
+      bottom: calc(100% + 14px);
+      right: -8px;
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      background: rgba(7, 7, 26, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(244, 114, 182, 0.15);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      min-width: 200px;
+    }
+    .audio-tooltip.visible { opacity: 1; }
+    .audio-tooltip-cover {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--pink), #a78bfa);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .audio-tooltip-cover svg {
+      width: 24px;
+      height: 24px;
+      color: rgba(255,255,255,0.5);
+    }
+    .audio-tooltip-info { display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+    .audio-tooltip-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .audio-tooltip-artist {
+      font-size: 0.75rem;
+      color: var(--pink);
+    }
+    .audio-tooltip-source {
+      font-size: 0.65rem;
+      color: rgba(148, 163, 184, 0.5);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Random Phrases ─── */
+    .phrase-float {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 1.25rem;
+      z-index: 997;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.7rem;
+      color: rgba(148, 163, 184, 0.25);
+      letter-spacing: 0.04em;
+      max-width: 260px;
+      transition: opacity 0.8s ease;
+      opacity: 0;
+      pointer-events: none;
+      line-height: 1.5;
+    }
+    .phrase-float.visible { opacity: 1; }
 
     .flip-card-front,
     .flip-card-back {
@@ -1117,7 +1190,23 @@
       <line x1="23" y1="9" x2="17" y2="15"/>
       <line x1="17" y1="9" x2="23" y2="15"/>
     </svg>
+    <div class="audio-tooltip" id="audioTooltip">
+      <div class="audio-tooltip-cover">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+      <div class="audio-tooltip-info">
+        <p class="audio-tooltip-title">Duvet</p>
+        <p class="audio-tooltip-artist">bôa</p>
+        <p class="audio-tooltip-source">Serial Experiments Lain OP</p>
+      </div>
+    </div>
   </button>
+
+  <div class="phrase-float" id="phraseFloat"></div>
 
   <!-- ════════════════════════════════════════════════════════
      SECTION 5 — CARTA ASTRAL (LOVE LETTER)
@@ -1552,10 +1641,12 @@
     (function() {
       const audio = document.getElementById('bgAudio');
       const toggle = document.getElementById('audioToggle');
+      const tooltip = document.getElementById('audioTooltip');
       if (!audio || !toggle) return;
 
       audio.volume = 0.15;
       let started = false;
+      let hoverTimer = null;
 
       function startAudio() {
         if (started) return;
@@ -1578,9 +1669,59 @@
           toggle.classList.add('muted');
         }
       });
+
+      // ── 3s hover tooltip ──
+      toggle.addEventListener('mouseenter', () => {
+        hoverTimer = setTimeout(() => {
+          if (tooltip) tooltip.classList.add('visible');
+        }, 3000);
+      });
+
+      toggle.addEventListener('mouseleave', () => {
+        clearTimeout(hoverTimer);
+        if (tooltip) tooltip.classList.remove('visible');
+      });
     })();
 
-    // ─── 8. INTERSECTION OBSERVER (Scroll reveals) ───
+    // ─── 8. RANDOM PHRASES ───
+    (function() {
+      const el = document.getElementById('phraseFloat');
+      if (!el) return;
+
+      const phrases = [
+        "Pasen el name de la canción: bôa — Duvet",
+        "Rob controla mi mente",
+        "Proyección astral en 3... 2... 1...",
+        "Missandei: Dracarys",
+        "Guts y Casca tenían razón",
+        "Louise abrió la puerta correcta",
+        "Perdón... ¿por qué era?...",
+        "La Sirena nos unió",
+        "Kaneki y Touka: el amor verdadero",
+        "Griffith hizo todo mal",
+        "Esa cerveza no era la culpable",
+        "Eve Hewson lo entendería",
+        "Corriendo como Louise y Rob",
+        "bôa — Duvet en loop infinito",
+      ];
+
+      let idx = 0;
+
+      function showNext() {
+        el.textContent = phrases[idx % phrases.length];
+        el.classList.add('visible');
+        idx++;
+        const delay = 4000 + Math.random() * 4000;
+        setTimeout(() => {
+          el.classList.remove('visible');
+          setTimeout(showNext, 1200);
+        }, delay);
+      }
+
+      setTimeout(showNext, 3000);
+    })();
+
+    // ─── 9. INTERSECTION OBSERVER (Scroll reveals) ───
     (function() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -1596,14 +1737,14 @@
       });
     })();
 
-    // ─── 9. FLIP CARDS ───
+    // ─── 10. FLIP CARDS ───
     document.querySelectorAll('.flip-card').forEach(card => {
       card.addEventListener('click', () => {
         card.classList.toggle('flipped');
       });
     });
 
-    // ─── 10. TYPEWRITER ───
+    // ─── 11. TYPEWRITER ───
     (function() {
       const text = [
         "Me desesperé y me quise desquitar con la única amig@ que tengo (y tuve, cómo me duele escribir esto). No fue lo adecuado. Mal pensé las cosas.",
@@ -1725,7 +1866,7 @@
       cartaObserver.observe(document.getElementById('carta'));
     })();
 
-    // ─── 11. ORBIT ALIGNMENT ───
+    // ─── 12. ORBIT ALIGNMENT ───
     (function() {
       const btn = document.getElementById('alignBtn');
       const diego = document.getElementById('orbitDiego');
@@ -1774,7 +1915,7 @@
       });
     })();
 
-    // ─── 12. HERO PARALLAX ───
+    // ─── 13. HERO PARALLAX ───
     if (lenis) {
       lenis.on('scroll', (e) => {
         const hero = document.getElementById('hero');
