@@ -562,16 +562,8 @@
       width: 52px;
       height: 52px;
       border-radius: 8px;
-      background: linear-gradient(135deg, var(--pink), #a78bfa);
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .audio-tooltip-cover svg {
-      width: 24px;
-      height: 24px;
-      color: rgba(255,255,255,0.5);
+      object-fit: cover;
     }
     .audio-tooltip-info { display: flex; flex-direction: column; justify-content: center; gap: 1px; }
     .audio-tooltip-title {
@@ -1173,7 +1165,7 @@
 
         <div class="mural-card"><img src="assets/berserk-casca-gutssex2.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Guts & Casca: pasión</span></div></div>
         <div class="mural-card"><img src="assets/painting-eve-hewson.gif" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Eve pintando recuerdos</span></div></div>
-        <div class="mural-card banner"><img src="assets/RobIsLouise.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Rob IS Louise — la teoría que lo cambió todo</span></div></div>
+        <div class="mural-card banner"><img src="assets/RobIsLouise2.png" alt="" loading="lazy"><div class="mural-overlay"><span class="mural-label">Rob IS Louise — la teoría que lo cambió todo</span></div></div>
       </div>
     </div>
   </section>
@@ -1191,13 +1183,7 @@
       <line x1="17" y1="9" x2="23" y2="15"/>
     </svg>
     <div class="audio-tooltip" id="audioTooltip">
-      <div class="audio-tooltip-cover">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-        </svg>
-      </div>
+      <img class="audio-tooltip-cover" src="assets/serial-experiments-lain-an-anime-ahead-of-its-time.png" alt="Lain" loading="lazy">
       <div class="audio-tooltip-info">
         <p class="audio-tooltip-title">Duvet</p>
         <p class="audio-tooltip-artist">bôa</p>
