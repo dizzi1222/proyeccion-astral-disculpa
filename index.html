@@ -2076,14 +2076,28 @@
 
       function fastForward() {
         clearTimeout(timeoutId);
-        target.textContent = text;
-        index = text.length;
-        isWriting = false;
+        isWriting = true;
         isRewinding = false;
-        resetBtnText();
-        cursor.classList.add('done');
-        letterEnd.style.display = 'block';
-        showToast('⏩ Carta completada al instante. ¿Tan apurada estás?');
+        target.textContent = '';
+        index = 0;
+        cursor.classList.remove('done');
+        letterEnd.style.display = 'none';
+        showToast('⟳ Carta completada al instante. ¿Tan apurada estás?');
+
+        const total = text.length;
+        function turboWrite() {
+          if (index >= total) {
+            cursor.classList.add('done');
+            letterEnd.style.display = 'block';
+            isWriting = false;
+            resetBtnText();
+            return;
+          }
+          target.textContent += text[index];
+          index++;
+          timeoutId = setTimeout(turboWrite, text[index - 1] === '\n' ? 30 : 2);
+        }
+        turboWrite();
       }
 
       function snapEffect() {
