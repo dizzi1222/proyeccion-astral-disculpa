@@ -1526,13 +1526,16 @@
         return;
       }
       sessionStorage.setItem('visited', '1');
-      setTimeout(() => {
+
+      function dismissLoading() {
+        if (screen.classList.contains('hidden')) return;
         screen.classList.add('hidden');
-        setTimeout(() => {
-          screen.remove();
-          showToast('♪ 寵愛の調べ「Duvet」— bôa が宇宙に響く ♪', 4000);
-        }, 600);
-      }, 2000);
+        setTimeout(() => screen.remove(), 600);
+      }
+
+      screen.addEventListener('click', dismissLoading);
+      screen.addEventListener('touchstart', dismissLoading);
+      setTimeout(dismissLoading, 4000);
     })();
 
     // ─── Toast helper ───
@@ -1846,7 +1849,6 @@
 
       audio.volume = 0.15;
       let started = false;
-      let hoverTimer = null;
 
       function startAudio() {
         if (started) return;
