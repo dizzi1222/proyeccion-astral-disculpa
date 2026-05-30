@@ -28,14 +28,14 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar { width: 12px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.3); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.5); }
-    * { scrollbar-width: thin; scrollbar-color: rgba(244,114,182,0.3) transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.35); border-radius: 6px; border: 2px solid transparent; background-clip: padding-box; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.55); }
+    * { scrollbar-width: auto; scrollbar-color: rgba(244,114,182,0.35) transparent; }
     @media (min-width: 1024px) {
-      ::-webkit-scrollbar { width: 12px; }
-      ::-webkit-scrollbar-thumb { border-width: 3px; }
+      ::-webkit-scrollbar { width: 18px; }
+      ::-webkit-scrollbar-thumb { border-radius: 9px; border-width: 3px; }
     }
 
     :root {
@@ -1531,8 +1531,6 @@
         screen.classList.add('hidden');
         setTimeout(() => {
           screen.remove();
-          const a = document.getElementById('bgAudio');
-          if (a) { a.volume = 0.15; a.play().catch(() => {}); }
         }, 600);
       }, 2000);
     })();
@@ -1849,23 +1847,37 @@
       audio.volume = 0.15;
       let started = false;
 
-      function startAudio() {
-        if (started) return;
-        started = true;
-        audio.play().catch(() => {});
-        document.removeEventListener('click', startAudio);
-        document.removeEventListener('touchstart', startAudio);
-        showToast('♪ 寵愛「Duvet」— bôa. Volviendo a la vida ♪', 4000);
+      function showTooltip(duration) {
+        if (!tooltip) return;
+        tooltip.classList.add('visible');
+        clearTimeout(tooltip._hide);
+        if (duration) tooltip._hide = setTimeout(() => tooltip.classList.remove('visible'), duration);
       }
 
-      document.addEventListener('click', startAudio);
-      document.addEventListener('touchstart', startAudio);
+      function tryPlay() {
+        if (started) return;
+        started = true;
+        const p = audio.play();
+        if (p && p.catch) {
+          p.then(() => {
+            showToast('♪ 寵愛「Duvet」— bôa. Volviendo a la vida ♪', 4000);
+            showTooltip(3000);
+          }).catch(() => {
+            // Browser blocked — esperar primer gesto
+            started = false;
+            document.addEventListener('pointerdown', tryPlay, { once: true });
+            document.addEventListener('touchstart', tryPlay, { once: true });
+          });
+        }
+      }
+
+      // Intentar autoplay después de que la pantalla de carga termine
+      setTimeout(tryPlay, 2600);
 
       // ── Tooltip: hover instantáneo + click ──
       toggle.addEventListener('mouseenter', () => {
         if (tooltip) tooltip.classList.add('visible');
       });
-
       toggle.addEventListener('mouseleave', () => {
         if (tooltip) tooltip.classList.remove('visible');
       });
