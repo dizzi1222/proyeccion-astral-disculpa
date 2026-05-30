@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Proyección Astral: Misión Disculpa</title>
   <link rel="icon" type="image/png" href="assets/RobIsLouise.png">
   <link rel="apple-touch-icon" href="assets/RobIsLouise.png">
@@ -25,10 +28,11 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.25); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.4); }
+    ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.3); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.5); }
+    * { scrollbar-width: thin; scrollbar-color: rgba(244,114,182,0.3) transparent; }
 
     :root {
       --space-bg: #07071a;
@@ -350,6 +354,43 @@
       perspective: 600px;
       cursor: pointer;
       position: relative;
+      border-radius: 1rem;
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  box-shadow 0.4s ease;
+    }
+    .flip-card.reveal-scale:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px rgba(244, 114, 182, 0.2), 0 8px 32px rgba(0,0,0,0.3);
+      z-index: 3;
+    }
+    .flip-card:hover .flip-card-front {
+      border-color: rgba(244, 114, 182, 0.5);
+      background: rgba(244, 114, 182, 0.15);
+      box-shadow: inset 0 0 40px rgba(244, 114, 182, 0.08);
+    }
+    .flip-card:hover .flip-card-front .icon {
+      text-shadow: 0 0 24px rgba(244, 114, 182, 0.7);
+      transform: scale(1.15);
+    }
+    .flip-card:hover .flip-card-front h3 {
+      color: var(--pink);
+    }
+    .flip-card:hover .flip-card-front .flip-hint {
+      opacity: 1;
+      color: rgba(244, 114, 182, 0.7);
+    }
+    .flip-card:hover .flip-card-back {
+      border-color: rgba(244, 114, 182, 0.5);
+      background: rgba(244, 114, 182, 0.2);
+    }
+    .flip-card:hover .flip-card-sticker {
+      border-color: rgba(244, 114, 182, 0.8);
+      box-shadow: 0 0 20px rgba(244, 114, 182, 0.35);
+      transform: scale(1.1);
+    }
+    .flip-grid:has(.flip-card:hover) .flip-card:not(:hover) {
+      opacity: 0.7;
+      filter: saturate(0.4) brightness(0.6);
     }
     .flip-card-inner {
       position: relative;
@@ -623,6 +664,7 @@
       background: rgba(129, 140, 248, 0.08);
       border: 1px solid rgba(129, 140, 248, 0.2);
       z-index: 2;
+      transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
     }
     .flip-card-back {
       background: rgba(244, 114, 182, 0.1);
@@ -648,10 +690,13 @@
       border-radius: 50%;
       border: 2px solid rgba(244, 114, 182, 0.3);
       flex-shrink: 0;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
     }
     .flip-card-front .icon {
       font-size: 2.5rem;
       margin-bottom: 0.75rem;
+      display: inline-block;
+      transition: text-shadow 0.4s ease, transform 0.4s ease;
     }
     .flip-card-front h3 {
       font-family: 'Space Grotesk', sans-serif;
@@ -659,12 +704,15 @@
       font-weight: 600;
       color: var(--text);
       line-height: 1.4;
+      transition: color 0.4s ease;
     }
     .flip-hint {
       font-size: 0.7rem;
       color: var(--text-dim);
       margin-top: 0.5rem;
       letter-spacing: 0.03em;
+      transition: opacity 0.4s ease, color 0.4s ease;
+      opacity: 0.6;
     }
 
     /* ─── Typewriter ─── */
@@ -694,6 +742,25 @@
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
+    }
+
+    /* ─── Thanos Snap (dust decay) ─── */
+    @keyframes dust-decay {
+      0% { filter: none; opacity: 1; letter-spacing: 0; }
+      30% { filter: saturate(0.3) brightness(1.5); opacity: 0.8; letter-spacing: 2px; }
+      60% { filter: saturate(0) brightness(2); opacity: 0.4; letter-spacing: 5px; color: rgba(244,114,182,0.3); }
+      100% { filter: saturate(0) brightness(3); opacity: 0; letter-spacing: 8px; color: transparent; }
+    }
+    .typewriter-text.snapped {
+      animation: dust-decay 1.5s ease forwards;
+    }
+    @keyframes snap-pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(244,114,182,0.3); }
+      50% { box-shadow: 0 0 40px rgba(244,114,182,0.6), 0 0 80px rgba(129,140,248,0.3); }
+    }
+    .letter.snapped {
+      animation: snap-pulse 1.2s ease infinite;
+      border-color: rgba(244,114,182,0.4);
     }
 
     /* ─── Letter styling ─── */
@@ -1028,6 +1095,7 @@
       #cursor-dot, #cursor-ring { display: none; }
       body, body * { cursor: auto !important; }
     }
+
   </style>
 </head>
 <body>
@@ -1460,6 +1528,16 @@
       }, 2000);
     })();
 
+    // ─── Toast helper ───
+    function showToast(msg, duration = 3000) {
+      const el = document.getElementById('toastNotif');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._hide);
+      el._hide = setTimeout(() => el.classList.remove('show'), duration);
+    }
+
     // ─── 2. STARFIELD (Canvas) ───
     (function() {
       const canvas = document.getElementById('starfield');
@@ -1530,6 +1608,7 @@
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
+        preventBodyScroll: false,
       });
       function raf(time) {
         lenis.raf(time);
@@ -1787,9 +1866,11 @@
         if (audio.paused) {
           audio.play().catch(() => {});
           toggle.classList.remove('muted');
+          showToast('🔊 Duvet — bôa. Volviendo a la vida');
         } else {
           audio.pause();
           toggle.classList.add('muted');
+          showToast('🔇 Música silenciada... como el vacío del espacio');
         }
         if (tooltip) tooltip.classList.add('visible');
       });
@@ -1972,20 +2053,93 @@
         rewindChar();
       }
 
+      function fastForward() {
+        clearTimeout(timeoutId);
+        target.textContent = text;
+        index = text.length;
+        isWriting = false;
+        isRewinding = false;
+        resetBtnText();
+        cursor.classList.add('done');
+        letterEnd.style.display = 'block';
+        showToast('⏩ Carta completada al instante. ¿Tan apurada estás?');
+      }
+
+      function snapEffect() {
+        clearTimeout(timeoutId);
+        isWriting = false;
+        isRewinding = false;
+        resetBtnText();
+        const letterEl = target.closest('.letter');
+        if (letterEl) letterEl.classList.add('snapped');
+        target.classList.add('snapped');
+        if (cursor) cursor.style.display = 'none';
+        if (letterEnd) letterEnd.style.display = 'none';
+        if (rewindBtn) {
+          rewindBtn.style.opacity = '0.3';
+          rewindBtn.style.pointerEvents = 'none';
+        }
+        showToast('💀 Has destruido el espacio-tiempo. Thanos estaría orgulloso.');
+        setTimeout(() => {
+          target.classList.remove('snapped');
+          if (letterEl) letterEl.classList.remove('snapped');
+          target.textContent = '';
+          target.style.animation = 'none';
+          index = 0;
+          if (cursor) cursor.style.display = '';
+          if (letterEl) {
+            letterEl.style.borderColor = 'rgba(244,114,182,0.15)';
+            letterEl.style.animation = 'none';
+          }
+          if (rewindBtn) {
+            rewindBtn.style.opacity = '1';
+            rewindBtn.style.pointerEvents = '';
+          }
+          rewindCount = 0;
+          showToast('🌌 El universo se ha restaurado. No vuelvas a hacerlo...');
+          isWriting = true;
+          setTimeout(writeChar, 800);
+        }, 4000);
+      }
+
       if (rewindBtn) {
+        let clickTimer = null;
+
         rewindBtn.addEventListener('click', () => {
           if (isRewinding) return;
-          if (target.textContent.length > 0) {
-            rewindCount++;
-            if (rewindCount > 1) {
-              showToast(rewindMessages[(rewindCount - 2) % rewindMessages.length]);
+
+          if (clickTimer) {
+            clearTimeout(clickTimer);
+            clickTimer = null;
+            // Double-click
+            if (!hasStarted) {
+              hasStarted = true;
+              fastForward();
+            } else if (target.textContent.length < text.length) {
+              fastForward();
             }
-            startRewind();
-          } else if (!hasStarted) {
-            hasStarted = true;
-            isWriting = true;
-            setTimeout(writeChar, 500);
+            return;
           }
+
+          clickTimer = setTimeout(() => {
+            clickTimer = null;
+            // Single-click
+            if (target.textContent.length > 0) {
+              rewindCount++;
+              if (rewindCount === 7) {
+                snapEffect();
+                return;
+              }
+              if (rewindCount > 1) {
+                showToast(rewindMessages[(rewindCount - 2) % rewindMessages.length]);
+              }
+              startRewind();
+            } else if (!hasStarted) {
+              hasStarted = true;
+              isWriting = true;
+              setTimeout(writeChar, 500);
+            }
+          }, 280);
         });
       }
 
@@ -2051,6 +2205,7 @@
         }, 1600);
 
         aligned = true;
+        showToast('✦ Misión Completa ✦ Los astros se han alineado. El cosmos está en paz.');
       });
     })();
 
