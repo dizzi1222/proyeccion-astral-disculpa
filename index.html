@@ -1527,15 +1527,14 @@
       }
       sessionStorage.setItem('visited', '1');
 
-      function dismissLoading() {
-        if (screen.classList.contains('hidden')) return;
+      setTimeout(() => {
         screen.classList.add('hidden');
-        setTimeout(() => screen.remove(), 600);
-      }
-
-      screen.addEventListener('click', dismissLoading);
-      screen.addEventListener('touchstart', dismissLoading);
-      setTimeout(dismissLoading, 4000);
+        setTimeout(() => {
+          screen.remove();
+          const a = document.getElementById('bgAudio');
+          if (a) { a.volume = 0.15; a.play().catch(() => {}); }
+        }, 600);
+      }, 2000);
     })();
 
     // ─── Toast helper ───
@@ -1856,7 +1855,7 @@
         audio.play().catch(() => {});
         document.removeEventListener('click', startAudio);
         document.removeEventListener('touchstart', startAudio);
-        showToast('♪ 寵愛の歌「Duvet」が流れ始めた • 耳を澄ませ ♪', 4000);
+        showToast('♪ 寵愛「Duvet」— bôa. Volviendo a la vida ♪', 4000);
       }
 
       document.addEventListener('click', startAudio);
@@ -1876,11 +1875,11 @@
         if (audio.paused) {
           audio.play().catch(() => {});
           toggle.classList.remove('muted');
-          showToast('🔊 Duvet — bôa. Volviendo a la vida');
+          showToast('♪ 寵愛「Duvet」— bôa. Volviendo a la vida ♪');
         } else {
           audio.pause();
           toggle.classList.add('muted');
-          showToast('🔇 Música silenciada... como el vacío del espacio');
+          showToast('🔇 沈黙... Música silenciada, como el vacío del espacio');
         }
         if (tooltip) tooltip.classList.add('visible');
       });
