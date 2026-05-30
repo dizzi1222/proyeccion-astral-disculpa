@@ -33,6 +33,10 @@
     ::-webkit-scrollbar-thumb { background: rgba(244, 114, 182, 0.3); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(244, 114, 182, 0.5); }
     * { scrollbar-width: thin; scrollbar-color: rgba(244,114,182,0.3) transparent; }
+    @media (min-width: 1024px) {
+      ::-webkit-scrollbar { width: 12px; }
+      ::-webkit-scrollbar-thumb { border-width: 3px; }
+    }
 
     :root {
       --space-bg: #07071a;
@@ -1524,7 +1528,10 @@
       sessionStorage.setItem('visited', '1');
       setTimeout(() => {
         screen.classList.add('hidden');
-        setTimeout(() => screen.remove(), 600);
+        setTimeout(() => {
+          screen.remove();
+          showToast('♪ 寵愛の調べ「Duvet」— bôa が宇宙に響く ♪', 4000);
+        }, 600);
       }, 2000);
     })();
 
@@ -1847,6 +1854,7 @@
         audio.play().catch(() => {});
         document.removeEventListener('click', startAudio);
         document.removeEventListener('touchstart', startAudio);
+        showToast('♪ 寵愛の歌「Duvet」が流れ始めた • 耳を澄ませ ♪', 4000);
       }
 
       document.addEventListener('click', startAudio);
