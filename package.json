@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "Proyección Astral: Misión Disculpa — De Diego para Marian",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "preview": "npx serve ."
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vite": "^6.3.0"
   }
 }
